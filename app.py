@@ -830,7 +830,7 @@ def pago():
 
             mp_token = app.config['MERCADOPAGO_ACCESS_TOKEN']
             sdk = mercadopago.SDK(mp_token)
-            BASE_URL = "https://seedhub-tienda.loca.lt"  # Cambia por tu dominio real
+            BASE_URL = "https://wepobo.pythonanywhere.com"  # Cambia por tu dominio real
 
             preference_data = {
                 "items": [
