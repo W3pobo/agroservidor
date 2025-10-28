@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pago Pendiente | AgronoMia</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding-top: 50px; }
+        .container { background: #fff; max-width: 500px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #009ee3; }
+        .instrucciones { text-align: left; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+        .instrucciones p { margin: 10px 0; font-size: 1.1em; }
+        .instrucciones strong { color: #333; }
+        .volver-btn { display: inline-block; margin-top: 30px; padding: 12px 25px; background-color: #009ee3; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>¡Listo! Solo falta realizar tu pago.</h2>
+        <p>Tu pedido ha sido registrado. Tienes <strong>1 día hábil</strong> para completar el pago en efectivo.</p>
+
+        <div class="instrucciones">
+            <p><strong>Banco:</strong> BBVA</p>
+            <p><strong>Monto a pagar:</strong> ${{ "%.2f"|format(total) }}</p>
+            <p><strong>Número de convenio CIE:</strong> 0641375</p>
+            <p><strong>Referencia:</strong> {{ referencia }}</p>
+        </div>
+        
+        <p style="margin-top:20px; font-size:0.9em; color:#777;">
+            También hemos enviado este ticket de pago a tu correo electrónico. Tu compra se confirmará una vez que realices el pago.
+        </p>
+
+        <a href="{{ url_for('inicio') }}" class="volver-btn">← Volver a la Tienda</a>
+    </div>
+</body>
+</html>

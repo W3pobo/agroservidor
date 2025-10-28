@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Actualizar Producto (Admin) | AgronoMia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo11.css') }}">
+    <style>
+    /* === ESTILOS DE ACCESIBILIDAD (AHORA MANEJADOS POR ACCESIBILIDAD.JS) === */
+        /* Los estilos .grayscale y #grayscale-toggle se han movido a accesibilidad.js */
+
+         /* === ESTILOS PARA BOTÓN FLOTANTE "VOLVER ARRIBA" === */
+        .floating-btn {
+            position: fixed;
+            z-index: 1001;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+
+        #back-to-top {
+            bottom: 25px;
+            left: 25px;
+            background-color: #FFD700; /* Color dorado para distinguirlo */
+            opacity: 0;
+            visibility: hidden;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            background-color: #FFC107;
+        }
+        /* Media query para dispositivos pequeños */
+        @media (max-width: 600px) {
+            #back-to-top { width: 50px; height: 50px; bottom: 15px; left: 15px; }
+            /* Se quitó #grayscale-toggle de aquí porque ahora lo controla el JS central */
+        }
+        
+        /* ==== ESTILOS DEL MODAL DE LOGOUT AÑADIDOS ==== */
+        #logout-modal-bg {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(24, 26, 27, 0.55);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        #logout-modal-bg.active {
+            display: flex;
+        }
+        #logout-modal {
+            background: rgba(24, 26, 27, 0.92);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+            padding: 48px 38px 36px 38px;
+            text-align: center;
+            max-width: 370px;
+            width: 90vw;
+            color: #f5f5f7;
+        }
+        #logout-modal h2 {
+            color: #00e6b0;
+            font-size: 2em;
+            margin-bottom: 18px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        #logout-modal p {
+            font-size: 1.15em;
+            margin-bottom: 32px;
+            color: #e0f7fa;
+        }
+        #logout-modal .modal-btns {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        #logout-modal .modal-btn {
+            padding: 12px 32px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+        }
+        #logout-modal .modal-btn.confirm {
+            background: #c62828; /* Rojo */
+            color: #fff;
+        }
+        #logout-modal .modal-btn.confirm:hover {
+            background: #a12020;
+            transform: scale(1.04);
+        }
+        #logout-modal .modal-btn.cancel {
+            background: #232526;
+            color: #e0e0e0;
+            border: 1.5px solid #444;
+        }
+        #logout-modal .modal-btn.cancel:hover {
+            background: #181a1b;
+            color: #00e6b0;
+            transform: scale(1.04);
+        }
+        /* ==== FIN DE ESTILOS DEL MODAL ==== */
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+             <a href="{{ url_for('admin_productos') }}">
+                <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver"> Volver
+            </a>
+            <a href="{{ url_for('panel_admin') }}">
+                <img src="{{ url_for('static', filename='images/panel.png') }}" alt="Panel Admin">
+                Panel Admin
+            </a>
+            <a href="{{ url_for('admin_productos') }}">
+                <img src="{{ url_for('static', filename='images/pr.png') }}" alt="Supervisión Productos">
+                Supervisión Productos
+            </a>
+        </div>
+        <div class="nav-right">
+             <a href="#" id="logout-link">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión">
+                Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+    <div class="main-content">
+        <div class="container">
+            <h2>✏️ Actualizar Producto (Admin)</h2>
+            <form action="" method="POST" enctype="multipart/form-data">
+                <label for="nombre">Nombre del producto</label>
+                <input type="text" id="nombre" name="nombre" value="{{ producto.nombre }}" required>
+                
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" name="descripcion" required>{{ producto.descripcion }}</textarea>
+                
+                <label for="precio">Precio</label>
+                <input type="number" id="precio" name="precio" value="{{ producto.precio }}" step="0.01" min="0" required>
+                
+                <label for="categoria_id">Categoría</label>
+                <select id="categoria_id" name="categoria_id" required>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" {% if categoria.id == producto.categoria_id %}selected{% endif %}>{{ categoria.nombre }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="productor_id">Productor</label>
+                <select id="productor_id" name="productor_id" required>
+                    {% for productor in productores %}
+                        <option value="{{ productor.id }}" {% if productor.id == producto.productor_id %}selected{% endif %}>{{ productor.nombre }}</option>
+                    {% endfor %}
+                </select>
+                
+                <label for="tiempo_germinacion">Tiempo de Germinación (días)</label>
+                <input type="number" id="tiempo_germinacion" name="tiempo_germinacion" value="{{ producto.tiempo_germinacion or '' }}" placeholder="Ej: 14">
+
+                <label for="epoca_siembra">Época de Siembra</label>
+                <input type="text" id="epoca_siembra" name="epoca_siembra" value="{{ producto.epoca_siembra or '' }}" placeholder="Ej: Primavera">
+
+                <label for="cantidad_semillas">Cantidad de Semillas (aprox.)</label>
+                <input type="number" id="cantidad_semillas" name="cantidad_semillas" value="{{ producto.cantidad_semillas or '' }}" placeholder="Ej: 50">
+
+                <div class="imagen-actual">
+                    <label>Imagen actual:</label><br>
+                    {% if producto.imagen %}
+                        <img src="{{ url_for('static', filename='images/' + producto.imagen) }}" alt="Imagen actual">
+                    {% else %}
+                        <span>No hay imagen</span>
+                    {% endif %}
+                </div>
+                <label for="imagen">Cambiar imagen (opcional)</label>
+                <input type="file" id="imagen" name="imagen" accept="image/*">
+                
+                <button type="submit">Actualizar Producto</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="logout-modal-bg">
+        <div id="logout-modal">
+            <h2>¿Cerrar sesión?</h2>
+            <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+            <div class="modal-btns">
+                <form id="logout-form" method="get" style="display:inline;">
+                    <button type="button" class="modal-btn confirm" onclick="cerrarSesionYRedirigir(event)">Sí, cerrar sesión</button>
+                </form>
+                <button class="modal-btn cancel" onclick="cerrarLogoutModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#232526" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+    
+    <script>
+        // === FUNCIONES MODAL (AÑADIDAS) ===
+        function abrirLogoutModal() {
+            const modal = document.getElementById('logout-modal-bg');
+            if (modal) modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Evita scroll del fondo
+        }
+        function cerrarLogoutModal() {
+            const modal = document.getElementById('logout-modal-bg');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restaura scroll
+        }
+
+        // --- MANEJO DE HISTORIAL (AÑADIDO) ---
+        window.addEventListener('popstate', function() {
+             location.reload(true); // Recarga forzada al usar 'back'
+        });
+
+        function cerrarSesionYRedirigir(event) {
+            event.preventDefault();
+            history.replaceState(null, null, window.location.href);
+            window.location.replace("{{ url_for('logout') }}");
+        }
+        history.pushState(null, null, window.location.href);
+        // --- FIN MANEJO DE HISTORIAL ---
+        
+        document.addEventListener('DOMContentLoaded', function() {
+             // === LISTENER MODAL (AÑADIDO) ===
+            const logoutLink = document.getElementById('logout-link');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', e => {
+                    e.preventDefault(); 
+                    abrirLogoutModal();   
+                });
+            }
+            document.addEventListener('keydown', e => {
+                if (e.key === "Escape") cerrarLogoutModal();
+            });
+            // === FIN LISTENER MODAL ===
+            
+            // === LÓGICA DE ACCESIBILIDAD (EXISTENTE) ===
+            const backToTopButton = document.getElementById('back-to-top');
+            if (backToTopButton) {
+                window.onscroll = function() {
+                    // Muestra el botón si el scroll es mayor a 300px
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopButton.classList.add('visible');
+                    } else {
+                        backToTopButton.classList.remove('visible');
+                    }
+                };
+                backToTopButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth' // Desplazamiento suave
+                    });
+                });
+            }
+        });
+    </script>
+   <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

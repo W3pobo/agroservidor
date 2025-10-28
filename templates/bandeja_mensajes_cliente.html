@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bandeja de Entrada | AgronoMia</title>
+    <style>
+        /* Estilos generales */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            min-height: 100vh;
+            color: #f5f5f7;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* Pseudo-elemento para la imagen de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        /* --- Barra de Navegación --- */
+        nav {
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 32px;
+        }
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        nav a {
+            color: #f5f5f7;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        nav a img {
+            height: 28px;
+            width: 28px;
+        }
+        nav a:hover {
+            background: rgba(255,255,255,0.08);
+            color: #00e6b0;
+        }
+
+        /* --- Contenedor Principal --- */
+        .container {
+            flex: 1 0 auto;
+            max-width: 1200px;
+            margin: 60px auto 40px auto;
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            padding: 44px 80px 38px 80px;
+            border-radius: 22px;
+            box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.25);
+            border: 1.5px solid rgba(0,230,176,0.13);
+        }
+        h2, h3 {
+            color: #00e6b0;
+            text-align: center;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+            font-weight: 800;
+        }
+        h2 { font-size: 2.2em; margin-bottom: 32px; }
+        h3 { font-size: 1.6em; margin-top: 2rem; margin-bottom: 1.5rem; }
+
+        /* --- Elementos de Mensajes y Conversaciones --- */
+        .mensaje-item {
+            text-align: left;
+            background: rgba(24, 26, 27, 0.82);
+            border-radius: 14px;
+            margin-bottom: 18px;
+            padding: 22px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,230,176,0.10);
+        }
+        .mensaje-item p { margin: 0; font-size: 1.1em; }
+        .mensaje-item strong { color: #00e6b0; }
+        .mensaje-item small { color: #b2dfdb; font-size: 0.9em; font-style: italic; display: block; margin-top: 5px; }
+
+        .mensaje-item-link { text-decoration: none; color: inherit; display: block; transition: transform 0.2s; }
+        .mensaje-item-link:hover .mensaje-item { transform: scale(1.02); background: rgba(30, 32, 33, 0.9); }
+        
+        .respuesta-admin {
+            margin-top: 15px;
+            background: rgba(0,230,176,0.09);
+            padding: 12px 18px;
+            border-radius: 9px;
+            border-left: 4px solid #00e6b0;
+        }
+        .boton-nuevo-mensaje, .volver-btn {
+            display: inline-block;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 10px;
+            padding: 12px 36px;
+            transition: all 0.2s ease-in-out;
+        }
+        .boton-nuevo-mensaje {
+            background: #00e6b0;
+            color: #181a1b;
+            font-size: 1.1em;
+            margin-bottom: 1rem;
+        }
+        .boton-nuevo-mensaje:hover {
+            background: #00b88a;
+            color: #fff;
+            transform: scale(1.04);
+        }
+        .volver-btn {
+            margin-top: 32px;
+            background: #232526;
+            color: #00e6b0;
+            font-size: 1.1em;
+            border: 1.5px solid #00e6b0;
+        }
+        .volver-btn:hover {
+            background: #00e6b0;
+            color: #181a1b;
+            transform: scale(1.04);
+        }
+        .badge-contador {
+            background-color: #c62828;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .conversacion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .ocultar-btn {
+            background: #424242;
+            color: #fff;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .ocultar-btn:hover { background: #c62828; }
+        .vista-botones { display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center; }
+        .vista-btn { background: #232526; color: #00e6b0; border: 1.5px solid #00e6b0; padding: 8px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+        .vista-btn.active { background: #00e6b0; color: #181a1b; }
+        
+        /* --- Footer --- */
+        footer {
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            color: #aaa;
+            text-align: center;
+            padding: 18px 0 10px 0;
+            margin-top: auto;
+            border-top: 1px solid #222;
+        }
+
+        /* --- Botones Flotantes --- */
+        .floating-btn {
+            position: fixed; z-index: 1001; border: none; border-radius: 50%; width: 60px; height: 60px;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: flex;
+            justify-content: center; align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+        #back-to-top {
+            bottom: 25px; left: 25px; background-color: #FFD700;
+            opacity: 0; visibility: hidden;
+        }
+        #back-to-top.visible { opacity: 1; visibility: visible; }
+        #back-to-top:hover { background-color: #FFC107; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="{{ url_for('panel_cliente') }}">
+                <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver">
+                Volver
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('logout') }}" id="logout-link">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión">
+                Cerrar Sesión
+            </a>
+        </div>
+    </nav>  
+    <div class="container">
+        <h2>✉️ Bandeja de Entrada</h2>
+        
+        <div class="vista-botones">
+            <a href="{{ url_for('bandeja_mensajes_cliente') }}" class="vista-btn {% if not vista_archivados %}active{% endif %}">Activas</a>
+            <a href="{{ url_for('bandeja_mensajes_cliente', ver='archivados') }}" class="vista-btn {% if vista_archivados %}active{% endif %}">Archivadas</a>
+        </div>
+
+        <h3>Conversaciones con Productores</h3>
+        {% if conversaciones_productor %}
+            {% for conv in conversaciones_productor %}
+                <div class="conversacion-item">
+                    <a href="{{ url_for('conversacion_cliente', productor_id=conv.productor_id, producto_id=conv.producto_id) }}" class="mensaje-item-link" style="flex-grow: 1;">
+                        <div class="mensaje-item">
+                            <p>
+                                Conversación sobre <strong>{{ conv.producto_nombre }}</strong> con <strong>{{ conv.productor_nombre }}</strong>
+                                {% if conv.unread_count and conv.unread_count > 0 %}
+                                    <span class="badge-contador">{{ conv.unread_count }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </a>
+                    {% if vista_archivados %}
+                        <form action="{{ url_for('desarchivar_conversacion', id_uno=conv.productor_id, id_dos=conv.producto_id) }}" method="POST" style="margin-left: 10px;">
+                            <button type="submit" class="ocultar-btn" style="background: #009ee3;" title="Restaurar">Restaurar</button>
+                        </form>
+                    {% else %}
+                        <form action="{{ url_for('ocultar_conversacion', id_uno=conv.productor_id, id_dos=conv.producto_id) }}" method="POST" style="margin-left: 10px;">
+                            <button type="submit" class="ocultar-btn" title="Archivar">Archivar</button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align:center;">No tienes conversaciones en esta vista.</p>
+        {% endif %}
+
+       <h3>Mensajes con el Administrador</h3>
+        <a href="{{ url_for('contacto') }}" class="boton-nuevo-mensaje">Enviar Mensaje al Admin</a>
+        {% if mensajes_admin %}
+            {% for mensaje in mensajes_admin %}
+                <div class="mensaje-item">
+                    <div class="mensaje-info">
+                        <strong>Tú:</strong>
+                        <p>{{ mensaje.mensaje }}</p>
+                        <small>{{ mensaje.fecha.strftime('%d/%m/%Y %H:%M') }}</small>
+                    </div>
+                    {% if mensaje.respuesta %}
+                        <div class="respuesta-admin">
+                            <strong>Respuesta del Admin:</strong>
+                            <p>{{ mensaje.respuesta }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No tienes mensajes con el administrador.</p>
+        {% endif %}
+    </div>
+    <footer>
+        <p>&copy; 2024 AgronoMia. Todos los derechos reservados.</p>
+    </footer>
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#232526" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Funcionalidad para el botón "Volver Arriba" ---
+            // Corrección en el nombre de la variable
+            const backToTopButton = document.getElementById('back-to-top');
+
+            window.onscroll = function() {
+                // Muestra el botón si el usuario ha bajado 300px o más
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            };
+
+            backToTopButton.addEventListener('click', function() {
+                // Al hacer clic, vuelve al inicio de la página
+                window.scrollTo(0, 0);
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

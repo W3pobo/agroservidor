@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras | AgronoMia</title>
+    <style>
+        /* Estilos generales */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            min-height: 100vh;
+            color: #f5f5f7;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Pseudo-elemento para la imagen de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        /* --- Barra de Navegación --- */
+        nav {
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 32px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; gap: 25px; }
+        nav a {
+            color: #f5f5f7; text-decoration: none; font-weight: 500; padding: 10px 18px;
+            border-radius: 8px; transition: background 0.2s, color 0.2s; font-size: 1.1em;
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+        }
+        nav a img { height: 28px; width: 28px; vertical-align: middle; }
+        nav a:hover { background: rgba(255,255,255,0.08); color: #00e6b0; }
+        
+        /* --- Contenedor Principal --- */
+        .container {
+            max-width: 1400px; margin: 110px auto 40px auto;
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px);
+            padding: 40px 70px; border-radius: 22px;
+            box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.25); text-align: center;
+            border: 1.5px solid rgba(0,230,176,0.13); flex: 1 0 auto;
+            transition: max-width 0.3s, padding 0.3s;
+        }
+        h2 { color: #00e6b0; margin-bottom: 25px; text-shadow: 0 2px 8px rgba(0,0,0,0.45); }
+        .mensaje-carrito { font-size: 1.2em; color: #D32F2F; margin-top: 40px; }
+        .carrito-lista { list-style: none; padding: 0; margin: 0; }
+        .carrito-item {
+            display: flex; align-items: center; gap: 25px; padding: 18px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07); background: rgba(24, 26, 27, 0.82);
+            border-radius: 10px; margin-bottom: 10px; color: #f5f5f7;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+        }
+        .carrito-item img { width: 120px; border-radius: 8px; box-shadow: 0 2px 8px rgba(46,125,50,0.08); }
+        .carrito-detalle { flex: 1; text-align: left; }
+        .carrito-detalle p { margin: 6px 0; font-size: 1.08em; }
+        .carrito-detalle strong { color: #f5f5f7; }
+        .total { font-size: 1.5em; font-weight: bold; margin-top: 25px; color: #00e6b0; }
+        .pagar {
+            display: inline-block; background-color: #2E7D32; color: #fff;
+            font-size: 1.15em; padding: 12px 30px; border-radius: 8px; text-decoration: none;
+            font-weight: bold; margin-top: 18px;
+            transition: background 0.3s, color 0.3s, transform 0.2s; border: none;
+        }
+        .pagar:hover {
+            background-color: #1B5E20; color: #00e6b0; transform: scale(1.05);
+            box-shadow: 0px 4px 12px rgba(46, 125, 50, 0.25);
+        }
+        
+        /* --- Footer --- */
+        footer {
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px); color: #aaa;
+            text-align: center; padding: 18px 0 10px 0; font-size: 1em; letter-spacing: 1px;
+            margin-top: auto; border-top: 1px solid #222; box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+        }
+
+        /* --- Botones Flotantes --- */
+        .floating-btn {
+            position: fixed; z-index: 1001; border: none; border-radius: 50%; width: 60px; height: 60px;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: flex;
+            justify-content: center; align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+        #back-to-top {
+            bottom: 25px; left: 25px; background-color: #FFD700;
+            opacity: 0; visibility: hidden;
+        }
+        #back-to-top.visible { opacity: 1; visibility: visible; }
+        #back-to-top:hover { background-color: #FFC107; }
+
+        @media (max-width: 900px) {
+            .container { max-width: 98vw; margin: 110px 1vw 60px 1vw; }
+            .carrito-item img { width: 80px; }
+        }
+        @media (max-width: 600px) {
+            .container { margin-top: 40px; margin-bottom: 80px; padding: 10px; }
+            .carrito-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .carrito-item img { width: 100%; max-width: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="{{ url_for('inicio') }}">
+                <img src="{{ url_for('static', filename='images/inicio.png') }}" alt="Inicio">Inicio
+            </a>
+            <a href="{{ url_for('productos') }}">
+                <img src="{{ url_for('static', filename='images/mercado.png') }}" alt="Mercado">Mercado
+            </a>
+            <a href="{{ url_for('productores') }}">
+                <img src="{{ url_for('static', filename='images/productor.png') }}" alt="Productores">Productores
+            </a>
+            <a href="{{ url_for('contacto') }}">
+                <img src="{{ url_for('static', filename='images/contacto.png') }}" alt="Contacto">Contacto
+            </a>
+        </div>
+        <div class="nav-right">
+            {% if session['usuario_id'] %}
+                <a href="{{ url_for('panel_cliente') }}">
+                    <img src="{{ url_for('static', filename='images/perfil.png') }}" alt="Mi Cuenta">Mi Cuenta
+                </a>
+                <a href="{{ url_for('logout') }}">
+                    <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión">Cerrar Sesión
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}">
+                    <img src="{{ url_for('static', filename='images/iniciarsesion.png') }}" alt="Iniciar Sesión">Iniciar Sesión
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container">
+        <h2>🛒 Tu Carrito de Compras</h2>
+        {% if productos %}
+            <ul class="carrito-lista">
+            {% for producto in productos %}
+                <li class="carrito-item">
+                    <img src="{{ url_for('static', filename='images/' + producto.imagen) }}" alt="{{ producto.nombre }}">
+                    <div class="carrito-detalle">
+                        <p><strong>{{ producto.nombre }}</strong></p>
+                        <p>Cantidad: {{ producto.cantidad }}</p>
+                        <p>Precio: ${{ producto.precio }}</p>
+                        <form action="{{ url_for('quitar_carrito', producto_id=producto.id) }}" method="post" style="display:inline;">
+                            <button type="submit" style="background:#D32F2F;color:white;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:bold;margin-top:8px;">
+                                Quitar
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+            <p class="total">Total: ${{ total }}</p>
+            <a href="{{ url_for('pago') }}" class="pagar">Proceder al Pago</a>
+        {% else %}
+            <p class="mensaje-carrito">🛒 Tu carrito de compras está vacío.</p>
+        {% endif %}
+    </div>
+
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#232526" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Funcionalidad para escala de grises ---
+            const toggleButton = document.getElementById('grayscale-toggle');
+            const htmlElement = document.documentElement; // Corrección: Seleccionamos <html>
+            // --- Funcionalidad para el botón "Volver Arriba" ---
+            const backToTopButton = document.getElementById('back-to-top');
+
+            window.onscroll = function() {
+                // Muestra el botón si el usuario ha bajado 300px o más
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            };
+
+            backToTopButton.addEventListener('click', function() {
+                // Al hacer clic, vuelve al inicio de la página
+                window.scrollTo(0, 0);
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

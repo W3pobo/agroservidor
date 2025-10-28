@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Producto | AgronoMia</title>
+    <style>
+        /* Estilos generales */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #f5f5f7;
+            position: relative;
+        }
+        
+        /* Pseudo-elemento para la imagen de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        /* --- Barra de Navegación --- */
+        nav {
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0 32px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; gap: 25px; }
+        nav a {
+            color: #f5f5f7; text-decoration: none; font-weight: 500; padding: 10px 18px;
+            border-radius: 8px; transition: background 0.2s, color 0.2s; font-size: 1.1em;
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+        }
+        nav a img { height: 28px; width: 28px; }
+        nav a:hover { background: rgba(255,255,255,0.08); color: #00e6b0; }
+        
+        /* --- Contenido Principal y Formulario --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 15px;
+        }
+        .container {
+            max-width: 550px;
+            width: 100%;
+            background: rgba(24, 26, 27, 0.68);
+            backdrop-filter: blur(12px);
+            padding: 38px 32px;
+            border-radius: 20px;
+            box-shadow: 0px 8px 32px rgba(0,0,0,0.25);
+            text-align: left;
+            border: 1.5px solid rgba(0,230,176,0.13);
+        }
+        h2 {
+            color: #00e6b0; margin-top: 0; margin-bottom: 2rem; text-align: center;
+            font-size: 2em; letter-spacing: 1px;
+        }
+        form { display: flex; flex-direction: column; gap: 1rem; }
+        label {
+            color: #00e6b0; font-weight: 600; margin-bottom: 4px;
+            font-size: 1em; display: block;
+        }
+        input, select, textarea {
+            width: 100%; padding: 12px; border: 1.5px solid #00e6b0;
+            border-radius: 8px; font-size: 1em; background: rgba(24, 26, 27, 0.65);
+            color: #f5f5f7; transition: border 0.2s, box-shadow 0.2s; box-sizing: border-box;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        input:focus, select:focus, textarea:focus {
+            border-color: #00b88a; outline: none;
+            box-shadow: 0px 4px 12px rgba(0,230,176,0.13);
+        }
+        button[type="submit"] {
+            background-color: #00e6b0; color: #181a1b; font-size: 1.15em;
+            padding: 14px 0; border-radius: 8px; font-weight: bold; margin-top: 1rem;
+            border: none; cursor: pointer; transition: background 0.3s, color 0.3s, transform 0.2s;
+            letter-spacing: 1px;
+        }
+        button[type="submit"]:hover { background-color: #00b88a; color: #fff; transform: scale(1.03); }
+        .volver {
+            display: block; text-align: center; margin-top: 1.5rem; color: #00e6b0;
+            font-weight: bold; text-decoration: none; transition: color 0.2s;
+        }
+        .volver:hover { text-decoration: underline; }
+        
+        /* --- Footer --- */
+        footer {
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px);
+            color: #aaa; text-align: center; padding: 18px 0;
+        }
+
+        .floating-btn {
+            position: fixed;
+            z-index: 1001;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+
+        #back-to-top {
+            bottom: 25px;
+            left: 25px;
+            background-color: #FFD700; /* Color dorado para distinguirlo */
+            opacity: 0;
+            visibility: hidden;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            background-color: #FFC107;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="{{ url_for('panel_productor') }}">
+                <img src="{{ url_for('static', filename='images/panel.png') }}" alt="Panel Productor">
+                Panel Productor
+            </a>
+            <a href="{{ url_for('admin_productos_productor') }}">
+                <img src="{{ url_for('static', filename='images/pr.png') }}" alt="Mis Productos">
+                Mis Productos
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('logout') }}" id="logout-link">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión">
+                Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+    <div class="main-content">
+        <div class="container">
+            <h2>🌱 Agregar Nuevo Producto</h2>
+            <form action="{{ url_for('agregar_producto') }}" method="POST" enctype="multipart/form-data">
+                <label for="nombre">Nombre del producto</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Ej: Semillas de Tomate Cherry" required>
+                
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" name="descripcion" placeholder="Describe tu producto..." required></textarea>
+                
+                <label for="precio">Precio ($)</label>
+                <input type="number" id="precio" name="precio" placeholder="Ej: 25.50" step="0.01" min="0" required>
+                
+                <label for="categoria_id">Categoría</label>
+                <select id="categoria_id" name="categoria_id" required>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                    {% endfor %}
+                </select>
+                
+                <label for="tiempo_germinacion">Tiempo de Germinación (días)</label>
+                <input type="number" id="tiempo_germinacion" name="tiempo_germinacion" placeholder="Opcional. Ej: 14">
+
+                <label for="epoca_siembra">Época de Siembra</label>
+                <input type="text" id="epoca_siembra" name="epoca_siembra" placeholder="Opcional. Ej: Primavera">
+
+                <label for="cantidad_semillas">Cantidad de Semillas (aprox.)</label>
+                <input type="number" id="cantidad_semillas" name="cantidad_semillas" placeholder="Opcional. Ej: 50">
+
+                <label for="imagen">Imagen del producto</label>
+                <input type="file" id="imagen" name="imagen" accept="image/*" required>
+                
+                <button type="submit">Agregar Producto</button>
+            </form>
+            <a class="volver" href="{{ url_for('admin_productos_productor') }}">← Volver a Mis Productos</a>
+        </div>
+    </div>
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#232526" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+             // === LÓGICA DE ACCESIBILIDAD ACTUALIZADA ===
+            // --- Funcionalidad para el botón "Volver Arriba" ---
+            const backToTopButton = document.getElementById('back-to-top');
+            if (backToTopButton) {
+                window.onscroll = function() {
+                    // Muestra el botón si el scroll es mayor a 300px
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopButton.classList.add('visible');
+                    } else {
+                        backToTopButton.classList.remove('visible');
+                    }
+                };
+                backToTopButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth' // Desplazamiento suave
+                    });
+                });
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

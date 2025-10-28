@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-M">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del Cliente | AgronoMia</title>
+    <style>
+/* * Estilos del fondo de pantalla */
+body {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+    background-size: cover;
+    z-index: -1;
+    transition: filter 0.3s ease;
+}
+
+/* ==== ESTILOS DEL MODAL BLUR (EXISTENTES) ==== */
+#logout-modal-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+#logout-modal-bg.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+#logout-modal {
+    background: rgba(24, 26, 27, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(0,230,176,0.13);
+    box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.25);
+    padding: 30px;
+    border-radius: 22px;
+    text-align: center;
+    max-width: 450px;
+    width: 90%;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+#logout-modal-bg.active #logout-modal {
+    transform: scale(1);
+}
+
+#logout-modal h2 {
+    color: #00e6b0;
+    font-size: 1.8em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-weight: 800;
+}
+
+#logout-modal p {
+    color: #f5f5f7;
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+/* ==== FIN ESTILOS MODAL ==== */
+
+
+/* ==== NUEVOS ESTILOS: LAYOUT IZQUIERDA/DERECHA DEL FORMULARIO ==== */
+
+/* 1. Hacemos que el <div> que contiene label+input sea flexible */
+.container form div {
+    display: flex;
+    flex-direction: row;  /* Pone los items en fila (lado a lado) */
+    align-items: center;  /* Centra verticalmente la etiqueta y el campo */
+    gap: 15px;            /* Espacio entre la etiqueta y el campo */
+}
+
+/* 2. Asignamos un tamaño fijo a la etiqueta (izquierda) */
+.container form div label {
+    flex-basis: 220px;   /* Ancho fijo para la etiqueta más larga */
+    flex-shrink: 0;      /* Evita que la etiqueta se encoja */
+    text-align: left;    /* Alinea el texto a la izquierda */
+    margin-bottom: 0;    /* Sobrescribe el margen de estilo16.css */
+}
+
+/* 3. Hacemos que el campo de texto (derecha) ocupe el resto del espacio */
+.container form input[type="text"],
+.container form input[type="email"],
+.container form input[type="password"] {
+    flex-grow: 1;        /* El campo "crece" para llenar el espacio */
+    width: 100%;         /* Llena el espacio asignado (arregla el texto cortado) */
+    margin-bottom: 0;    /* Sobrescribe el margen de estilo16.css */
+}
+
+/* 4. (Opcional) En pantallas muy pequeñas, volvemos a apilarlos */
+@media (max-width: 600px) {
+    .container form div {
+        flex-direction: column; /* Apila en vertical */
+        align-items: stretch;   /* Ocupan todo el ancho */
+        gap: 5px;
+    }
+
+    .container form div label {
+        flex-basis: auto;       /* Resetea el ancho */
+        margin-bottom: 5px;     /* Restaura un pequeño margen */
+    }
+}
+/* ==== FIN NUEVOS ESTILOS ==== */
+
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo16.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="{{ url_for('inicio') }}">
+                <img src="{{ url_for('static', filename='images/inicio.png') }}" alt="Inicio">Inicio
+            </a>
+            <a href="{{ url_for('productos') }}">
+                <img src="{{ url_for('static', filename='images/mercado.png') }}" alt="Mercado">Mercado
+            </a>
+            <a href="{{ url_for('contacto') }}">
+                <img src="{{ url_for('static', filename='images/contacto.png') }}" alt="Contacto">Contacto
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('panel_cliente') }}">
+                <img src="{{ url_for('static', filename='images/perfil.png') }}" alt="Mi Cuenta">Mi Cuenta
+            </a>
+            
+            <a href="{{ url_for('panel_cliente') }}">
+                <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver">Volver
+            </a>
+            
+            <a href="#" id="logout-link">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión">Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>👤 Mi Perfil</h2>
+        <form action="{{ url_for('guardar_perfil') }}" method="POST">
+            <div>
+                <label>Nombre:</label>
+                <input type="text" name="nombre" value="{{ usuario.nombre }}" required>
+            </div>
+            <div>
+                <label>Correo Electrónico:</label>
+                <input type="email" name="email" value="{{ usuario.email }}" required>
+            </div>
+            <div>
+                <label>Contraseña (dejar en blanco para no cambiar):</label>
+                <input type="password" name="password">
+            </div>
+            <div>
+                <label>Dirección:</label>
+                <input type="text" name="direccion" value="{{ usuario.direccion }}">
+            </div>
+            <button type="submit" class="boton-guardar">Guardar Cambios</button>
+        </form>
+    </div>
+
+    <div id="logout-modal-bg">
+        <div id="logout-modal">
+            <h2>¿Cerrar sesión?</h2>
+            <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+            <div class="modal-btns">
+                <form id="logout-form" action="{{ url_for('logout') }}" method="get" style="display:inline;">
+                    <button type="submit" class="modal-btn confirm">Sí, cerrar sesión</button>
+                </form>
+                <button class="modal-btn cancel" onclick="cerrarLogoutModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+
+    <script>
+    // ==== FUNCIONES DE MODAL ====
+    function abrirLogoutModal() {
+        document.getElementById('logout-modal-bg').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarLogoutModal() {
+        document.getElementById('logout-modal-bg').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutLink = document.getElementById('logout-link');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                abrirLogoutModal();
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") {
+                cerrarLogoutModal(); 
+            }
+        });
+    });
+    
+    // Manejar navegación adelante/atrás
+    window.addEventListener('popstate', function() {
+        location.reload();
+    });
+    function cerrarSesionYRedirigir(event) {
+    event.preventDefault();
+    history.replaceState(null, null, window.location.href);
+    window.location.replace("{{ url_for('logout') }}");
+    window.addEventListener('popstate', function() {
+        window.location.replace("/");
+    });
+}
+window.addEventListener('popstate', function() {
+    if (window.location.pathname !== "/") {
+        history.pushState(null, null, "/");
+        window.location.replace("/");
+    }
+});
+history.pushState(null, null, window.location.href);
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

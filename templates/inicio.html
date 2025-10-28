@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgronoMia - Inicio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo15.css') }}">
+    <style>
+        /* --- CORRECCIÓN AÑADIDA --- */
+        /* Esto elimina el margen superior que pone el navegador por defecto */
+        body {
+            margin: 0;
+        }
+        /* --- FIN DE LA CORRECCIÓN --- */
+
+        /* Estilos específicos para inicio.html */
+        .main-content {
+            background: transparent;
+        }
+        
+        /* Asegurar que el contenido principal tenga fondo semitransparente si es necesario */
+        .presentacion-grid-new {
+            background: transparent;
+        }
+        
+        /* Ajustes para el nav con fondo semitransparente */
+        nav {
+            background: rgba(24, 26, 27, 0.85);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Ajustes para el footer con fondo semitransparente */
+        footer {
+            background: rgba(24, 26, 27, 0.85);
+        }
+        
+        /* Estilos específicos para el logo banner */
+        .logo-banner-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px auto;
+            max-width: 800px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .logo-banner-content h1 {
+            color: #00e6b0;
+            margin: 20px 0;
+            font-size: 2.5em;
+        }
+        
+        .logo-banner-content p {
+            color: #f5f5f7;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        
+        .logo-img-main {
+            max-width: 200px;
+            height: auto;
+        }
+        
+        /* Grid de presentación */
+        .presentacion-grid-new {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .icono-card {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .info-card h3 {
+            color: #00e6b0;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .info-card p {
+            color: #f5f5f7;
+            line-height: 1.6;
+            font-size: 1em;
+        }
+        
+        /* Alertas */
+        .alert {
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 800px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .alert-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+        
+        .alert-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+        
+        .alert-info {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+            border: 1px solid #2196F3;
+        }
+        
+        .alert-warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+            border: 1px solid #FF9800;
+        }
+        
+        /* Modal de logout */
+        #logout-modal-bg {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #logout-modal-bg.active {
+            display: flex;
+        }
+        
+        #logout-modal {
+            background: rgba(24, 26, 27, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #00e6b0;
+        }
+        
+        #logout-modal h2 {
+            color: #00e6b0;
+            margin-bottom: 15px;
+        }
+        
+        #logout-modal p {
+            color: #f5f5f7;
+            margin-bottom: 25px;
+        }
+        
+        .modal-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-btn.confirm {
+            background: #ff5c5c;
+            color: white;
+        }
+        
+        .modal-btn.confirm:hover {
+            background: #ff4444;
+        }
+        
+        .modal-btn.cancel {
+            background: #666;
+            color: white;
+        }
+        
+        .modal-btn.cancel:hover {
+            background: #777;
+        }
+        
+        /* Badge del carrito */
+        .cart-badge {
+            background: #00e6b0;
+            color: #181a1b;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.95em;
+            margin-left: 4px;
+        }
+
+        .floating-btn {
+            position: fixed;
+            z-index: 1001;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+
+        #back-to-top {
+            bottom: 25px;
+            left: 25px;
+            background-color: #FFD700; /* Color dorado para distinguirlo */
+            opacity: 0;
+            visibility: hidden;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            background-color: #FFC107;
+        }        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+            transition: filter 0.3s ease;
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+             {% if session.tipo_usuario %}
+             <a href="javascript:history.back()">
+                <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver">Volver
+            </a>
+             {% endif %}
+             
+             <a href="{{ url_for('productos') }}">
+                <img src="{{ url_for('static', filename='images/mercado.png') }}" alt="Mercado">Mercado
+            </a>
+            <a href="{{ url_for('contacto') }}">
+                <img src="{{ url_for('static', filename='images/contacto.png') }}" alt="Contacto">Contacto
+            </a>
+        </div>
+        <div class="nav-right">
+            {% if session.tipo_usuario == 'Productor' %}
+                <a href="{{ url_for('perfil_productor') }}">
+                    <img src="{{ url_for('static', filename='images/perfil.png') }}" alt="Mi Cuenta">Mi Perfil </a>
+                <a href="#" id="logout-link">
+                    <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar">Cerrar Sesión
+                </a>
+            {% elif session.tipo_usuario == 'Cliente' %}
+                <a href="{{ url_for('carrito') }}">
+                    <img src="{{ url_for('static', filename='images/carrito.png') }}" alt="Carrito">Carrito
+                    {% if cantidad_carrito and cantidad_carrito > 0 %}
+                        <span class="cart-badge">{{ cantidad_carrito }}</span>
+                    {% endif %}
+                </a>
+                <a href="{{ url_for('perfil_cliente') }}">
+                    <img src="{{ url_for('static', filename='images/perfil.png') }}" alt="Mi Cuenta">Mi Cuenta
+                </a>
+                 <a href="#" id="logout-link">
+                    <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar">Cerrar Sesión
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}">
+                    <img src="{{ url_for('static', filename='images/iniciarsesion.png') }}" alt="Iniciar Sesión">Iniciar Sesión
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#232526" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+
+    <div class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                {% if category == 'success' %}✔️{% elif category == 'error' %}❌{% elif category == 'info' %}ℹ️{% elif category == 'warning' %}⚠️{% endif %}
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="logo-banner-glass">
+            <div class="logo-banner-content">
+                <img src="{{ url_for('static', filename='images/AgronoMia.png') }}" alt="AgronoMia" class="logo-img-main">
+                <h1>Bienvenido a AgronoMia</h1>
+                <p>Tu plataforma para acceder a los mejores productos del campo, de manera directa y transparente.</p>
+            </div>
+        </div>
+
+        <div class="presentacion-grid-new">
+            <div class="info-card glass">
+                <div class="icono-card">🌱</div>
+                <h3>Visión Verde</h3>
+                <p>Impulsamos una red donde cada alimento cuenta una historia y cada productor es protagonista. Transparencia, cercanía y origen real en cada compra.</p>
+            </div>
+            <div class="info-card glass">
+                <div class="icono-card">🛒</div>
+                <h3>Selección Natural</h3>
+                <p>Descubre productos frescos, orgánicos y artesanales, elegidos directamente de manos apasionadas por la calidad y el bienestar.</p>
+            </div>
+            <div class="info-card glass">
+                <div class="icono-card">🤝</div>
+                <h3>Comunidad Consciente</h3>
+                <p>Compra con impacto: apoya economías locales y forma parte de una comunidad que valora la sostenibilidad y el comercio justo.</p>
+            </div>
+            <div class="info-card glass">
+                <div class="icono-card">👨‍🌾</div>
+                <h3>Productores Reales</h3>
+                <p>Conoce a quienes cultivan tu alimento: productores que reciben un pago justo y comparten su pasión por la tierra y la alimentación saludable.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+
+    <div id="logout-modal-bg">
+        <div id="logout-modal">
+            <h2>¿Cerrar sesión?</h2>
+            <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+            <div class="modal-btns">
+                <form id="logout-form" action="{{ url_for('logout') }}" method="get" style="display:inline;">
+                    <button type="submit" class="modal-btn confirm">Sí, cerrar sesión</button>
+                </form>
+                <button class="modal-btn cancel" onclick="cerrarLogoutModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Funciones para el modal de logout
+    function abrirLogoutModal() {
+        document.getElementById('logout-modal-bg').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function cerrarLogoutModal() {
+        document.getElementById('logout-modal-bg').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Listener para el enlace de logout (si existe)
+    const logoutLink = document.getElementById('logout-link');
+    if(logoutLink) {
+        logoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            abrirLogoutModal();
+        });
+    }
+
+    // --- Funcionalidad para el botón "Volver Arriba" ---
+    const backToTopButton = document.getElementById('back-to-top');
+    if (backToTopButton) {
+        window.onscroll = function() {
+            // Muestra el botón si el scroll es mayor a 300px
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        };
+        backToTopButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Desplazamiento suave
+            });
+        });
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "Escape") cerrarLogoutModal();
+    });
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

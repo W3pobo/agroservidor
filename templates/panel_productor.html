@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Productor | AgronoMia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo9.css') }}">
+    <style>
+        .floating-btn {
+            position: fixed;
+            z-index: 1001;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+
+        #back-to-top {
+            bottom: 25px;
+            left: 25px;
+            background-color: #FFD700; /* Color dorado para distinguirlo */
+            opacity: 0;
+            visibility: hidden;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            background-color: #FFC107;
+        }
+
+            .panel-card {
+                /* Asegura que las tarjetas no sean demasiado anchas en pantallas pequeñas */
+                flex-basis: 90%; 
+            }
+        
+        /* === FIN DE ESTILOS RESPONSIVOS === */
+
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container" style="width:100%; display:flex; align-items:center; justify-content:center; position:relative;">
+            <span style="color:#00e6b0; font-size:1.45em; font-weight:800; letter-spacing:1px; text-align:center;">
+                Panel del Productor
+            </span>
+            <div class="nav-logout" style="position:absolute; right:32px; top:50%; transform:translateY(-50%);">
+                <a href="{{ url_for('logout') }}" style="color:#f5f5f7; text-decoration:none; font-weight:500; padding:10px 18px; border-radius:8px; transition:background 0.2s, color 0.2s; font-size:1.1em; display:flex; align-items:center; gap:8px; letter-spacing:0.5px;" id="logout-link">
+                    <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión" style="height:28px;width:28px;vertical-align:middle;">
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container nuevo-panel extra-ancho">
+        <main class="panel-cards-fila">
+            <div class="panel-card">
+                <span class="panel-card-icon">🌱</span>
+                <div class="panel-card-content">
+                    <h3>Mis Productos</h3>
+                    <p>Gestiona tu inventario y actualiza precios fácilmente.</p>
+                </div>
+                <button class="btn-blur" onclick="window.location.href='{{ url_for('admin_productos_productor') }}'">Administrar Productos</button>
+            </div>
+            <div class="panel-card">
+                <span class="panel-card-icon">📦</span>
+                <div class="panel-card-content">
+                    <h3>Pedidos Recibidos</h3>
+                    <p>Consulta y gestiona tus pedidos pendientes y entregados.</p>
+                </div>
+                <button class="btn-blur" onclick="window.location.href='{{ url_for('pedidos_productor') }}'">Ver Pedidos</button>
+            </div>
+            <div class="panel-card">
+                <span class="panel-card-icon">🛒</span>
+                <div class="panel-card-content">
+                    <h3>Mercado</h3>
+                    <p>Explora los productos disponibles en la plataforma.</p>
+                </div>
+                <button class="btn-blur" onclick="window.location.href='{{ url_for('productos') }}'">Ver Mercado</button>
+            </div>
+            <div class="panel-card">
+                <span class="panel-card-icon">✉️</span>
+                <div class="panel-card-content">
+                    <h3>Bandeja de Mensajes</h3>
+                    <p>Revisa y responde los mensajes que te han enviado.</p>
+                </div>
+                <button class="btn-blur" onclick="window.location.href='{{ url_for('bandeja_mensajes_productor') }}'">Ver Bandeja</button>
+            </div>
+            <div class="panel-card">
+                <span class="panel-card-icon">👤</span>
+                <div class="panel-card-content">
+                    <h3>Mi Perfil</h3>
+                    <p>Actualiza tu información personal y foto de perfil.</p>
+                </div>
+                <button class="btn-blur" onclick="window.location.href='{{ url_for('perfil_productor') }}'">Ver Perfil</button>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+
+    <div id="logout-modal-bg">
+        <div id="logout-modal">
+            <h2>¿Cerrar sesión?</h2>
+            <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+            <div class="modal-btns">
+                <form id="logout-form" action="{{ url_for('logout') }}" method="get" style="display:inline;">
+                    <button type="submit" class="modal-btn confirm">Sí, cerrar sesión</button>
+                </form>
+                <button class="modal-btn cancel" onclick="cerrarLogoutModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <div id="toast-blur" style="display:none;"></div>
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#232526" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+    
+    <script>
+        function abrirLogoutModal() {
+            document.getElementById('logout-modal-bg').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function cerrarLogoutModal() {
+            document.getElementById('logout-modal-bg').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Logout Modal
+            const logoutLink = document.getElementById('logout-link');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', e => {
+                    e.preventDefault();
+                    abrirLogoutModal();
+                });
+            }
+            document.addEventListener('keydown', e => {
+                if (e.key === "Escape") cerrarLogoutModal();
+            });
+
+             // === LÓGICA DE ACCESIBILIDAD ACTUALIZADA ===
+            // --- Funcionalidad para el botón "Volver Arriba" ---
+            const backToTopButton = document.getElementById('back-to-top');
+            if (backToTopButton) {
+                window.onscroll = function() {
+                    // Muestra el botón si el scroll es mayor a 300px
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopButton.classList.add('visible');
+                    } else {
+                        backToTopButton.classList.remove('visible');
+                    }
+                };
+                backToTopButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth' // Desplazamiento suave
+                    });
+                });
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

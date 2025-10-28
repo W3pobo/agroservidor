@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket Transferencia | AgronoMia</title>
+    <style>
+        /* Estilos para el modo escala de grises */
+        body.grayscale {
+            filter: grayscale(100%) !important;
+            -webkit-filter: grayscale(100%) !important;
+            -moz-filter: grayscale(100%) !important;
+            -ms-filter: grayscale(100%) !important;
+            -o-filter: grayscale(100%) !important;
+        }
+        
+        /* Botón de escala de grises */
+        #grayscale-toggle {
+            position: fixed;
+            top: 100px;
+            right: 25px;
+            z-index: 1001;
+            background-color: #00e6b0;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        #grayscale-toggle:hover {
+            transform: scale(1.1);
+            background-color: #00ffc4;
+        }
+
+        #grayscale-toggle.active {
+            background-color: #666;
+            box-shadow: 0 4px 12px rgba(102, 102, 102, 0.5);
+        }
+        
+        /* Fondo de la página */
+        body {
+            position: relative;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            transition: filter 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+            transition: filter 0.3s ease;
+        }
+
+        body.grayscale::before {
+            filter: grayscale(100%);
+            -webkit-filter: grayscale(100%);
+        }
+        
+        /* Estilos específicos para el ticket */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h2 {
+            color: #2e7d32;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        strong {
+            color: #2e7d32;
+        }
+
+        @media (max-width: 600px) {
+            #grayscale-toggle {
+                bottom: 15px;
+                right: 15px;
+                width: 50px;
+                height: 50px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            table {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+        }
+
+        @media print {
+            #grayscale-toggle {
+                display: none;
+            }
+            
+            body::before {
+                display: none;
+            }
+            
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            
+            table {
+                box-shadow: none;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo1.css') }}">
+</head>
+<body>
+    <!-- Botón de accesibilidad para escala de grises -->
+    <button id="grayscale-toggle" title="Activar/Desactivar Escala de Grises">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/>
+            <path d="M12 8v8"/>
+            <path d="M8 12h8"/>
+        </svg>
+    </button>
+
+    <div class="ticket-content">
+        <h2>Ticket de Transferencia Bancaria</h2>
+        <p><strong>Pedido #:</strong> {{ pedido.id }}</p>
+        <p><strong>Propietario:</strong> {{ propietario }}</p>
+        <p><strong>Número de tarjeta:</strong> {{ numero_tarjeta }}</p>
+        
+        <table>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+            </tr>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.cantidad }}</td>
+                <td>${{ producto.precio * producto.cantidad }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="2"><strong>Total:</strong></td>
+                <td><strong>${{ total }}</strong></td>
+            </tr>
+        </table>
+        
+        <p>Gracias por tu compra.</p>
+    </div>
+
+    <script>
+        // Funcionalidad para escala de grises
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButton = document.getElementById('grayscale-toggle');
+            const bodyElement = document.body;
+
+            // Revisa si el modo escala de grises estaba activado
+            if (localStorage.getItem('grayscaleEnabled') === 'true') {
+                bodyElement.classList.add('grayscale');
+                toggleButton.classList.add('active');
+            }
+
+            // Escucha los clics en el botón
+            toggleButton.addEventListener('click', function() {
+                bodyElement.classList.toggle('grayscale');
+                toggleButton.classList.toggle('active');
+
+                // Guarda la preferencia del usuario
+                localStorage.setItem('grayscaleEnabled', bodyElement.classList.contains('grayscale'));
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+# --- Framework principal y extensiones ---
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Flask-Mail
+Authlib
+
+# --- Base de Datos ---
+# Conector para la base de datos PostgreSQL
+psycopg2-binary
+
+# --- Utilidades y APIs ---
+# Para generar PDFs desde HTML (facturas)
+xhtml2pdf
+
+# Para manejar datos y exportar a Excel (.xlsx)
+pandas
+openpyxl
+
+# SDK para la integración con Mercado Pago
+mercadopago
+
+# --- Multimedia y Accesibilidad ---
+# Para convertir texto a voz (Google Text-to-Speech)
+gTTS
+# Para reproducir audio
+pygame
+
+# --- Despliegue ---
+serverless-wsgi

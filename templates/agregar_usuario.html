@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Usuario | AgronoMia</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Estilos generales */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            min-height: 100vh;
+            color: #f5f5f7;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Pseudo-elemento para la imagen de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        /* --- Barra de Navegación --- */
+        nav {
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 32px;
+        }
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        nav a {
+            color: #f5f5f7;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+        nav a img {
+            height: 28px;
+            width: 28px;
+            vertical-align: middle;
+        }
+        nav a:hover {
+            background: rgba(255,255,255,0.08);
+            color: #00e6b0;
+        }
+
+        /* --- Contenedor Principal --- */
+        .container {
+            flex: 1 0 auto;
+            max-width: 550px;
+            margin: 80px auto 40px auto;
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            padding: 32px 40px;
+            border-radius: 18px;
+            box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            border: 1.5px solid rgba(0,230,176,0.13);
+        }
+        h2 {
+            color: #00e6b0;
+            margin-bottom: 28px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+            font-size: 2em;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        form input, form select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1.5px solid #00e6b0;
+            background: rgba(24, 26, 27, 0.82);
+            color: #f5f5f7;
+            font-size: 1.1em;
+            transition: border 0.2s;
+            box-sizing: border-box;
+        }
+        form input::placeholder {
+            color: #aaa;
+        }
+        form input:focus, form select:focus {
+            border-color: #00b88a;
+            outline: none;
+        }
+        form button {
+            background: #00e6b0;
+            color: #181a1b;
+            font-weight: bold;
+            border: none;
+            padding: 13px 0;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+            margin-top: 8px;
+        }
+        form button:hover {
+            background: #00b88a;
+            color: #fff;
+            transform: scale(1.03);
+        }
+        .volver {
+            display: inline-block;
+            margin-top: 24px;
+            color: #00e6b0;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        .volver:hover {
+            text-decoration: underline;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            color: #aaa;
+            text-align: center;
+            padding: 18px 0 10px 0;
+            font-size: 1em;
+            letter-spacing: 1px;
+            margin-top: auto;
+            border-top: 1px solid #222;
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+        }
+
+        /* --- Botones Flotantes --- */
+        .floating-btn {
+            position: fixed;
+            z-index: 1001;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+
+        #back-to-top {
+            bottom: 25px;
+            left: 25px;
+            background-color: #FFD700; /* Color dorado para distinguirlo */
+            opacity: 0;
+            visibility: hidden;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            background-color: #FFC107;
+        }
+        
+        /* ==== ESTILOS DEL MODAL DE LOGOUT AÑADIDOS ==== */
+        #logout-modal-bg {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(24, 26, 27, 0.55);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        #logout-modal-bg.active {
+            display: flex;
+        }
+        #logout-modal {
+            background: rgba(24, 26, 27, 0.92);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+            padding: 48px 38px 36px 38px;
+            text-align: center;
+            max-width: 370px;
+            width: 90vw;
+            color: #f5f5f7;
+        }
+        #logout-modal h2 {
+            color: #00e6b0;
+            font-size: 2em;
+            margin-bottom: 18px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        #logout-modal p {
+            font-size: 1.15em;
+            margin-bottom: 32px;
+            color: #e0f7fa;
+        }
+        #logout-modal .modal-btns {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        #logout-modal .modal-btn {
+            padding: 12px 32px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+        }
+        #logout-modal .modal-btn.confirm {
+            background: #c62828; /* Rojo */
+            color: #fff;
+        }
+        #logout-modal .modal-btn.confirm:hover {
+            background: #a12020;
+            transform: scale(1.04);
+        }
+        #logout-modal .modal-btn.cancel {
+            background: #232526;
+            color: #e0e0e0;
+            border: 1.5px solid #444;
+        }
+        #logout-modal .modal-btn.cancel:hover {
+            background: #181a1b;
+            color: #00e6b0;
+            transform: scale(1.04);
+        }
+        /* ==== FIN DE ESTILOS DEL MODAL ==== */
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="{{ url_for('gestion_usuarios') }}">
+                <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver">Volver
+            </a>
+            <a href="{{ url_for('admin_productos') }}">
+                <img src="{{ url_for('static', filename='images/misp.png') }}" alt="Supervisión de Productos">Supervisión de Productos
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('panel_admin') }}">
+                <img src="{{ url_for('static', filename='images/panel.png') }}" alt="Panel Admin">Panel Admin
+            </a>
+            <a href="#" id="logout-link">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión">Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>Crear Nuevo Usuario</h2>
+        <form method="POST">
+            <input type="text" name="nombre" placeholder="Nombre completo" required>
+            <input type="email" name="email" placeholder="Correo electrónico" required>
+            <input type="password" name="password" placeholder="Contraseña" required>
+            <select name="tipo_usuario" required>
+                <option value="Cliente">Cliente</option>
+                <option value="Productor">Productor</option>
+            </select>
+            <button type="submit">Agregar Usuario</button>
+        </form>
+    </div>
+
+    <div id="logout-modal-bg">
+        <div id="logout-modal">
+            <h2>¿Cerrar sesión?</h2>
+            <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+            <div class="modal-btns">
+                <form id="logout-form" method="get" style="display:inline;">
+                    <button type="button" class="modal-btn confirm" onclick="cerrarSesionYRedirigir(event)">Sí, cerrar sesión</button>
+                </form>
+                <button class="modal-btn cancel" onclick="cerrarLogoutModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#232526" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+
+<script>
+    // === FUNCIONES MODAL (AÑADIDAS) ===
+    function abrirLogoutModal() {
+        const modal = document.getElementById('logout-modal-bg');
+        if (modal) modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Evita scroll del fondo
+    }
+    function cerrarLogoutModal() {
+        const modal = document.getElementById('logout-modal-bg');
+        if (modal) modal.classList.remove('active');
+        document.body.style.overflow = ''; // Restaura scroll
+    }
+
+    // --- MANEJO DE HISTORIAL (AÑADIDO) ---
+    window.addEventListener('popstate', function() {
+         location.reload(true); // Recarga forzada al usar 'back'
+    });
+
+    function cerrarSesionYRedirigir(event) {
+        event.preventDefault();
+        history.replaceState(null, null, window.location.href);
+        window.location.replace("{{ url_for('logout') }}");
+    }
+    history.pushState(null, null, window.location.href);
+    // --- FIN MANEJO DE HISTORIAL ---
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // === LISTENER MODAL (AÑADIDO) ===
+        const logoutLink = document.getElementById('logout-link');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', e => {
+                e.preventDefault(); 
+                abrirLogoutModal();   
+            });
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === "Escape") cerrarLogoutModal();
+        });
+        // === FIN LISTENER MODAL ===
+
+        // === LÓGICA DE ACCESIBILIDAD (EXISTENTE) ===
+        const backToTopButton = document.getElementById('back-to-top');
+        if (backToTopButton) {
+            window.onscroll = function() {
+                // Muestra el botón si el scroll es mayor a 300px
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            };
+            backToTopButton.addEventListener('click', function(event) {
+                event.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth' // Desplazamiento suave
+                });
+            });
+        }
+    });
+</script>
+<script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

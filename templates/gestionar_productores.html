@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Productores | AgronoMia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap');
+        
+        /* Estilos generales */
+        html, body {
+            height: 100%; margin: 0; padding: 0; scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh;
+            display: flex; flex-direction: column; color: #f5f5f7; position: relative;
+        }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover; z-index: -1;
+        }
+
+        /* --- Barra de Navegación --- */
+        nav {
+            background: rgba(24, 26, 27, 0.70); backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25); display: flex;
+            justify-content: space-between; align-items: center; height: 70px;
+            position: sticky; top: 0; z-index: 1000; padding: 0 32px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; gap: 25px; }
+        nav a {
+            color: #f5f5f7; text-decoration: none; font-weight: 500;
+            padding: 10px 18px; border-radius: 8px; transition: background 0.2s, color 0.2s;
+            font-size: 1.1em; display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+        }
+        nav a img { height: 32px; width: 32px; vertical-align: middle; }
+        nav a:hover { background: rgba(255,255,255,0.08); color: #00e6b0; }
+
+        /* --- Contenedor y Tabla --- */
+        .container {
+            max-width: 1300px; width: 100%; margin: 60px auto 40px;
+            background: rgba(24, 26, 27, 0.70); backdrop-filter: blur(10px);
+            padding: 38px 28px; border-radius: 26px;
+            box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.25); flex: 1; box-sizing: border-box;
+        }
+        h2 {
+            color: #00e6b0; margin-bottom: 28px; font-size: 2em;
+            letter-spacing: 1px; font-weight: 800; text-shadow: 0 2px 12px rgba(0,0,0,0.25); text-align: center;
+        }
+        .table-wrapper { overflow-x: auto; }
+        table {
+            width: 100%; min-width: 1000px; border-collapse: collapse; margin-top: 20px;
+            background: rgba(24, 26, 27, 0.92); border-radius: 14px;
+            overflow: hidden; box-shadow: 0 2px 10px rgba(0,230,176,0.10);
+        }
+        th, td { padding: 14px 10px; border-bottom: 1px solid #233; text-align: left; font-size: 1em; }
+        th { background-color: #00b88a; color: #181a1b; font-weight: 700; letter-spacing: 0.5px; }
+        .foto-prod { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; }
+        .btn-delete, .btn-edit, .btn-save, .btn-cancel, .btn-publish {
+            border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;
+            font-weight: bold; transition: all 0.2s;
+        }
+        .btn-delete { background-color: #dc3545; color: white; }
+        .btn-delete:hover { background-color: #c82333; }
+        .btn-edit { background-color: #ffc107; color: #181a1b; }
+        .btn-edit:hover { background-color: #e0a800; }
+        .btn-publish { background-color: #28a745; color: white; }
+        .btn-publish:hover { background-color: #218838; }
+        .btn-save { background-color: #00e6b0; color: #181a1b; }
+        .btn-save:hover { background-color: #00b88a; }
+        .btn-cancel { background-color: #6c757d; color: white; }
+        .btn-cancel:hover { background-color: #5a6268; }
+        .edit-form { display: flex; flex-direction: column; gap: 10px; padding: 10px; }
+        .edit-form input, .edit-form textarea {
+            width: 95%; padding: 8px; border-radius: 6px; border: 1px solid #00e6b0;
+            background-color: #232526; color: #e8e6e3;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: rgba(24, 26, 27, 0.70); color: #aaa; text-align: center;
+            padding: 18px 0 10px 0; font-size: 1em; letter-spacing: 1px;
+            margin-top: auto; border-top: 1px solid #222; box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+        }
+        
+        /* --- Botones Flotantes --- */
+        .floating-btn {
+            position: fixed;
+            z-index: 1001;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+
+        #back-to-top {
+            bottom: 25px;
+            left: 25px;
+            background-color: #FFD700; /* Color dorado para distinguirlo */
+            opacity: 0;
+            visibility: hidden;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            background-color: #FFC107;
+        }
+
+        /* ==== ESTILOS DEL MODAL DE LOGOUT AÑADIDOS ==== */
+        #logout-modal-bg {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(24, 26, 27, 0.55);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        #logout-modal-bg.active {
+            display: flex;
+        }
+        #logout-modal {
+            background: rgba(24, 26, 27, 0.92);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+            padding: 48px 38px 36px 38px;
+            text-align: center;
+            max-width: 370px;
+            width: 90vw;
+            color: #f5f5f7;
+        }
+        #logout-modal h2 {
+            color: #00e6b0;
+            font-size: 2em;
+            margin-bottom: 18px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        #logout-modal p {
+            font-size: 1.15em;
+            margin-bottom: 32px;
+            color: #e0f7fa;
+        }
+        #logout-modal .modal-btns {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        #logout-modal .modal-btn {
+            padding: 12px 32px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+        }
+        #logout-modal .modal-btn.confirm {
+            background: #c62828; /* Rojo */
+            color: #fff;
+        }
+        #logout-modal .modal-btn.confirm:hover {
+            background: #a12020;
+            transform: scale(1.04);
+        }
+        #logout-modal .modal-btn.cancel {
+            background: #232526;
+            color: #e0e0e0;
+            border: 1.5px solid #444;
+        }
+        #logout-modal .modal-btn.cancel:hover {
+            background: #181a1b;
+            color: #00e6b0;
+            transform: scale(1.04);
+        }
+        /* ==== FIN DE ESTILOS DEL MODAL ==== */
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="{{ url_for('panel_admin') }}">
+                <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver"> Volver
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="#" id="logout-link">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión"> Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>🗂️ Gestionar Productores</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Foto</th><th>Nombre</th><th>Email</th><th>Ubicación</th><th>Descripción</th><th>Publicado</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for productor in productores %}
+                    <tr id="prod-row-{{ productor.id }}">
+                        <td>{{ productor.id }}</td>
+                        <td>
+                            <img src="{{ url_for('static', filename='images/' + productor.imagen if productor.imagen else 'images/default-productor.png') }}" class="foto-prod" alt="Foto">
+                        </td>
+                        <td>{{ productor.nombre }}</td>
+                        <td>{{ productor.email }}</td>
+                        <td>{{ productor.ubicacion or 'N/A' }}</td>
+                        <td>{{ productor.descripcion or 'N/A' }}</td>
+                        <td>
+                            <form action="{{ url_for('publicar_productor', productor_id=productor.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn-publish">
+                                    {{ 'Sí' if productor.publicado else 'No' }}
+                                </button>
+                            </form>
+                        </td>
+                        <td style="white-space:nowrap;">
+                            <button type="button" class="btn-edit" onclick="mostrarEditarProd({{ productor.id }})">✏️ Editar</button>
+                            <form action="{{ url_for('eliminar_productor', productor_id=productor.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar a este productor?')">
+                                <button type="submit" class="btn-delete">❌ Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr id="edit-prod-row-{{ productor.id }}" style="display:none;">
+                        <td colspan="8">
+                            <form class="edit-form" action="{{ url_for('editar_productor', productor_id=productor.id) }}" method="POST" enctype="multipart/form-data">
+                                <input type="text" name="nombre" value="{{ productor.nombre }}" required>
+                                <input type="email" name="email" value="{{ productor.email }}" required>
+                                <input type="text" name="ubicacion" value="{{ productor.ubicacion or '' }}">
+                                <textarea name="descripcion">{{ productor.descripcion or '' }}</textarea>
+                                
+                                <label for="imagen-{{ productor.id }}" style="margin-top: 5px;">Cambiar Imagen (opcional):</label>
+                                <input type="file" name="imagen" id="imagen-{{ productor.id }}" accept="image/*">
+                                
+                                <div style="display:flex; gap: 10px; margin-top: 10px;">
+                                    <button type="submit" class="btn-save">💾 Guardar</button>
+                                    <button type="button" class="btn-cancel" onclick="ocultarEditarProd({{ productor.id }})">Cancelar</button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="logout-modal-bg">
+        <div id="logout-modal">
+            <h2>¿Cerrar sesión?</h2>
+            <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+            <div class="modal-btns">
+                <form id="logout-form" method="get" style="display:inline;">
+                    <button type="button" class="modal-btn confirm" onclick="cerrarSesionYRedirigir(event)">Sí, cerrar sesión</button>
+                </form>
+                <button class="modal-btn cancel" onclick="cerrarLogoutModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#232526" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+    
+    <script>
+        function mostrarEditarProd(id) {
+            document.getElementById('prod-row-' + id).style.display = 'none';
+            document.getElementById('edit-prod-row-' + id).style.display = 'table-row';
+        }
+        function ocultarEditarProd(id) {
+            document.getElementById('prod-row-' + id).style.display = 'table-row';
+            document.getElementById('edit-prod-row-' + id).style.display = 'none';
+        }
+
+        // === FUNCIONES MODAL (AÑADIDAS) ===
+        function abrirLogoutModal() {
+            const modal = document.getElementById('logout-modal-bg');
+            if (modal) modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Evita scroll del fondo
+        }
+        function cerrarLogoutModal() {
+            const modal = document.getElementById('logout-modal-bg');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restaura scroll
+        }
+
+        // --- MANEJO DE HISTORIAL (AÑADIDO) ---
+        window.addEventListener('popstate', function() {
+             location.reload(true); // Recarga forzada al usar 'back'
+        });
+
+        function cerrarSesionYRedirigir(event) {
+            event.preventDefault();
+            history.replaceState(null, null, window.location.href);
+            window.location.replace("{{ url_for('logout') }}");
+        }
+        history.pushState(null, null, window.location.href);
+        // --- FIN MANEJO DE HISTORIAL ---
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // === LISTENER MODAL (AÑADIDO) ===
+            const logoutLink = document.getElementById('logout-link');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', e => {
+                    e.preventDefault(); 
+                    abrirLogoutModal();   
+                });
+            }
+            document.addEventListener('keydown', e => {
+                if (e.key === "Escape") cerrarLogoutModal();
+            });
+            // === FIN LISTENER MODAL ===
+
+            // === LÓGICA DE ACCESIBILIDAD (EXISTENTE) ===
+            const backToTopButton = document.getElementById('back-to-top');
+            if (backToTopButton) {
+                window.onscroll = function() {
+                    // Muestra el botón si el scroll es mayor a 300px
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopButton.classList.add('visible');
+                    } else {
+                        backToTopButton.classList.remove('visible');
+                    }
+                };
+                backToTopButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth' // Desplazamiento suave
+                    });
+                });
+            }
+        });
+    </script>
+<script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

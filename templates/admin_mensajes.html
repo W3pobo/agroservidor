@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mensajes de Usuarios | AgronoMia</title>
+    <style>
+        /* Estilos generales */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            min-height: 100vh;
+            color: #f5f5f7;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Pseudo-elemento para el fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        /* --- Barra de Navegación --- */
+        nav {
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 32px;
+        }
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        nav a {
+            color: #f5f5f7;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+         nav a img {
+            height: 28px;
+            width: 28px;
+        }
+        nav a:hover {
+            background: rgba(255,255,255,0.08);
+            color: #00e6b0;
+        }
+
+        /* --- Contenedor Principal --- */
+        .container {
+            flex: 1 0 auto;
+            max-width: 900px;
+            margin: 60px auto 40px auto;
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            padding: 35px 40px;
+            border-radius: 18px;
+            box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.25);
+            border: 1.5px solid rgba(0,230,176,0.13);
+        }
+        h2 {
+            color: #00e6b0;
+            margin-bottom: 28px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+            text-align: center;
+        }
+
+        /* --- Estilos de Mensajes --- */
+        .mensaje-item {
+            border-bottom: 1px solid #2e7d32;
+            padding: 18px 0 16px 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .mensaje-info { flex: 1; text-align: left; }
+        .mensaje-info p { margin: 6px 0; }
+        .mensaje-actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+
+        /* --- ESTILO UNIFICADO Y CORREGIDO PARA AMBOS BOTONES --- */
+        .eliminar-btn, .responder-btn {
+            background: #D32F2F; /* Color base (rojo para eliminar) */
+            color: white;
+            border: none;
+            padding: 6px 18px; /* Padding define el tamaño vertical/horizontal */
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+            text-align: center;
+            width: 110px; /* **ANCHO FIJO AÑADIDO** (ajusta si es necesario) */
+            box-sizing: border-box; /* Asegura que padding no aumente el tamaño total */
+        }
+        .eliminar-btn:hover { background: #b71c1c; } /* Hover específico eliminar */
+
+        .responder-btn { /* Anula color de fondo para responder */
+            background: #00e6b0;
+            color: #181a1b;
+            margin-top: 0;
+            /* No necesita padding aquí, ya está arriba */
+        }
+        .responder-btn:hover { background: #00b88a; color: #fff; } /* Hover específico responder */
+        /* --- FIN ESTILO UNIFICADO --- */
+
+
+        /* --- Formulario de Respuesta --- */
+        .respuesta-form {
+            margin-top: 10px; background: rgba(24, 26, 27, 0.82); padding: 12px 16px;
+            border-radius: 8px; box-shadow: 0 2px 8px rgba(0,230,176,0.07);
+        }
+        .respuesta-form textarea {
+            width: 100%; border-radius: 6px; border: 1px solid #00e6b0; padding: 8px; font-size: 1em;
+            margin-bottom: 8px; resize: vertical; background: rgba(24, 26, 27, 0.65); color: #f5f5f7;
+            box-sizing: border-box;
+        }
+        .respuesta-form button {
+            background: #FFD700; color: #232526; border: none; padding: 6px 18px; border-radius: 7px;
+            font-weight: bold; cursor: pointer; transition: background 0.2s;
+        }
+        .respuesta-form button:hover { background: #FFC107; color: #181a1b; }
+
+        /* --- Otros --- */
+        .no-mensajes {
+            color: #00e6b0; background: rgba(24, 26, 27, 0.65); padding: 16px;
+            border-radius: 10px; font-weight: bold; text-align: center; margin-bottom: 20px;
+        }
+        .volver-btn {
+            display: inline-block; margin-top: 24px; background: #232526; color: #00e6b0;
+            padding: 8px 22px; border-radius: 8px; text-decoration: none; font-weight: bold;
+            border: 1.5px solid #00e6b0; transition: background 0.2s, color 0.2s;
+        }
+        .volver-btn:hover { background: #00e6b0; color: #181a1b; }
+
+        /* --- Footer --- */
+        footer {
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px); color: #aaa; text-align: center;
+            padding: 18px 0 10px 0; font-size: 1em; letter-spacing: 1px; margin-top: auto;
+            border-top: 1px solid #222; box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+        }
+
+        /* --- Botones Flotantes --- */
+        .floating-btn {
+            position: fixed;
+            z-index: 1001;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+
+        #back-to-top {
+            bottom: 25px;
+            left: 25px;
+            background-color: #FFD700;
+            opacity: 0;
+            visibility: hidden;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            background-color: #FFC107;
+        }
+       
+        /* ==== ESTILOS DEL MODAL DE LOGOUT ==== */
+        #logout-modal-bg {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(24, 26, 27, 0.55);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        #logout-modal-bg.active {
+            display: flex;
+        }
+        #logout-modal {
+            background: rgba(24, 26, 27, 0.92);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+            padding: 48px 38px 36px 38px;
+            text-align: center;
+            max-width: 370px;
+            width: 90vw;
+            color: #f5f5f7;
+        }
+        #logout-modal h2 {
+            color: #00e6b0;
+            font-size: 2em;
+            margin-bottom: 18px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        #logout-modal p {
+            font-size: 1.15em;
+            margin-bottom: 32px;
+            color: #e0f7fa;
+        }
+        #logout-modal .modal-btns {
+            display: flex;
+            justify-content: center;
+            gap: 22px;
+        }
+        #logout-modal .modal-btn {
+            padding: 12px 32px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+        }
+        #logout-modal .modal-btn.confirm {
+            background: #c62828; /* Rojo */
+            color: #fff;
+        }
+        #logout-modal .modal-btn.confirm:hover {
+            background: #a12020;
+            transform: scale(1.04);
+        }
+        #logout-modal .modal-btn.cancel {
+            background: #232526;
+            color: #e0e0e0;
+            border: 1.5px solid #444;
+        }
+        #logout-modal .modal-btn.cancel:hover {
+            background: #181a1b;
+            color: #00e6b0;
+            transform: scale(1.04);
+        }
+        /* ==== FIN DE ESTILOS DEL MODAL ==== */
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+             <a href="{{ url_for('panel_admin') }}">
+                <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver"> Volver
+            </a>
+        </div>
+        <div class="nav-right">
+             <a href="#" id="logout-link">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión"> Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>✉️ Mensajes de Usuarios</h2>
+        {% if mensajes %}
+            {% for mensaje, usuario_nombre, usuario_email in mensajes %}
+            <div class="mensaje-item">
+                <div class="mensaje-info">
+                    <p><strong>De:</strong> {{ usuario_nombre }} ({{ usuario_email }})</p>
+                    <p><strong>Usuario ID:</strong> {{ mensaje.usuario_id }}</p>
+                    <p><strong>Mensaje:</strong> {{ mensaje.mensaje }}</p>
+                    {% if mensaje.respuesta %}
+                        <div style="margin-top:8px; background:rgba(24, 26, 27, 0.65); padding:8px 12px; border-radius:7px;">
+                            <strong>Respuesta enviada:</strong><br>
+                            {{ mensaje.respuesta }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mensaje-actions">
+                    <form action="{{ url_for('eliminar_mensaje', mensaje_id=mensaje.id) }}" method="post" style="margin-bottom:0;">
+                        <button type="submit" class="eliminar-btn">Eliminar</button>
+                    </form>
+                    <button class="responder-btn" onclick="mostrarRespuestaForm({{ mensaje.id }})" type="button">Responder</button>
+                    <form id="respuesta-form-{{ mensaje.id }}" class="respuesta-form" action="{{ url_for('responder_mensaje', mensaje_id=mensaje.id) }}" method="post" style="display:none;">
+                        <textarea name="respuesta" rows="3" placeholder="Escribe tu respuesta aquí..." required></textarea>
+                        <button type="submit">Enviar Respuesta</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-mensajes">No hay mensajes para mostrar.</div>
+        {% endif %}
+    </div>
+
+    <div id="logout-modal-bg">
+        <div id="logout-modal">
+            <h2>¿Cerrar sesión?</h2>
+            <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+            <div class="modal-btns">
+                <form id="logout-form" method="get" style="display:inline;">
+                    <button type="button" class="modal-btn confirm" onclick="cerrarSesionYRedirigir(event)">Sí, cerrar sesión</button>
+                </form>
+                <button class="modal-btn cancel" onclick="cerrarLogoutModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#232526" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+
+    <script>
+        // --- Lógica para mostrar/ocultar formulario de respuesta ---
+        function mostrarRespuestaForm(id) {
+            var form = document.getElementById('respuesta-form-' + id);
+            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        }
+
+         // === FUNCIONES MODAL (AÑADIDAS) ===
+        function abrirLogoutModal() {
+            const modal = document.getElementById('logout-modal-bg');
+            if (modal) modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function cerrarLogoutModal() {
+            const modal = document.getElementById('logout-modal-bg');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // --- MANEJO DE HISTORIAL (AÑADIDO) ---
+        window.addEventListener('popstate', function() {
+             location.reload(true);
+        });
+
+        function cerrarSesionYRedirigir(event) {
+            event.preventDefault();
+            history.replaceState(null, null, window.location.href);
+            window.location.replace("{{ url_for('logout') }}");
+        }
+        history.pushState(null, null, window.location.href);
+        // --- FIN MANEJO DE HISTORIAL ---
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // === LISTENER MODAL (AÑADIDO) ===
+            const logoutLink = document.getElementById('logout-link');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', e => {
+                    e.preventDefault(); 
+                    abrirLogoutModal();   
+                });
+            }
+            document.addEventListener('keydown', e => {
+                if (e.key === "Escape") cerrarLogoutModal();
+            });
+            // === FIN LISTENER MODAL ===
+
+            // === LÓGICA DE ACCESIBILIDAD (EXISTENTE) ===
+            const backToTopButton = document.getElementById('back-to-top');
+            if (backToTopButton) {
+                window.onscroll = function() {
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopButton.classList.add('visible');
+                    } else {
+                        backToTopButton.classList.remove('visible');
+                    }
+                };
+                backToTopButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

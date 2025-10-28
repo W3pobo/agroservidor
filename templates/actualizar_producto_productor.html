@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+      <style>
+
+        .floating-btn {
+            position: fixed;
+            z-index: 1001;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+
+        #back-to-top {
+            bottom: 25px;
+            left: 25px;
+            background-color: #FFD700; /* Color dorado para distinguirlo */
+            opacity: 0;
+            visibility: hidden;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            background-color: #FFC107;
+        }
+</style>
+    <meta charset="UTF-8">
+    <title>Actualizar Mi Producto | AgronoMia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo11.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="{{ url_for('panel_productor') }}">
+                <img src="{{ url_for('static', filename='images/panel.png') }}" alt="Panel Productor">
+                Panel Productor
+            </a>
+            <a href="{{ url_for('admin_productos_productor') }}">
+                <img src="{{ url_for('static', filename='images/pr.png') }}" alt="Mis Productos">
+                Mis Productos
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('logout') }}" id="logout-link">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión">
+                Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+    <div class="main-content">
+        <div class="container">
+            <h2>✏️ Actualizar Mi Producto</h2>
+            <form action="" method="POST" enctype="multipart/form-data">
+                <label for="nombre">Nombre del producto</label>
+                <input type="text" id="nombre" name="nombre" value="{{ producto.nombre }}" required>
+                
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" name="descripcion" required>{{ producto.descripcion }}</textarea>
+                
+                <label for="precio">Precio</label>
+                <input type="number" id="precio" name="precio" value="{{ producto.precio }}" step="0.01" min="0" required>
+                
+                <label for="categoria_id">Categoría</label>
+                <select id="categoria_id" name="categoria_id" required>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" {% if categoria.id == producto.categoria_id %}selected{% endif %}>{{ categoria.nombre }}</option>
+                    {% endfor %}
+                </select>
+                
+                <label for="tiempo_germinacion">Tiempo de Germinación (días)</label>
+                <input type="number" id="tiempo_germinacion" name="tiempo_germinacion" value="{{ producto.tiempo_germinacion or '' }}" placeholder="Opcional. Ej: 14">
+
+                <label for="epoca_siembra">Época de Siembra</label>
+                <input type="text" id="epoca_siembra" name="epoca_siembra" value="{{ producto.epoca_siembra or '' }}" placeholder="Opcional. Ej: Primavera">
+
+                <label for="cantidad_semillas">Cantidad de Semillas (aprox.)</label>
+                <input type="number" id="cantidad_semillas" name="cantidad_semillas" value="{{ producto.cantidad_semillas or '' }}" placeholder="Opcional. Ej: 50">
+
+                <div class="imagen-actual">
+                    <label>Imagen actual:</label><br>
+                    {% if producto.imagen %}
+                        <img src="{{ url_for('static', filename='images/' + producto.imagen) }}" alt="Imagen actual">
+                    {% else %}
+                        <span>No hay imagen</span>
+                    {% endif %}
+                </div>
+                <label for="imagen">Cambiar imagen (opcional)</label>
+                <input type="file" id="imagen" name="imagen" accept="image/*">
+                
+                <button type="submit">Actualizar Producto</button>
+            </form>
+            <a class="volver" href="{{ url_for('admin_productos_productor') }}">← Volver a Mis Productos</a>
+        </div>
+    </div>
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+    
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#232526" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+
+    <script>
+        // === LÓGICA DE ACCESIBILIDAD ACTUALIZADA ===
+            // --- Funcionalidad para el botón "Volver Arriba" ---
+            const backToTopButton = document.getElementById('back-to-top');
+            if (backToTopButton) {
+                window.onscroll = function() {
+                    // Muestra el botón si el scroll es mayor a 300px
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopButton.classList.add('visible');
+                    } else {
+                        backToTopButton.classList.remove('visible');
+                    }
+                };
+                backToTopButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth' // Desplazamiento suave
+                    });
+                });
+            }
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

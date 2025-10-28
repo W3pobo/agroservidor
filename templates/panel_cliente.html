@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Cliente | AgronoMia</title>
+    <style>
+        /* Estilos para el botón "Volver Arriba" (CORREGIDOS) */
+        .floating-btn {
+            position: fixed;
+            z-index: 1001;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+        #back-to-top {
+            bottom: 25px;
+            left: 25px;
+            background-color: #FFD700;
+            opacity: 0; /* Oculto por defecto */
+            visibility: hidden; /* Oculto por defecto */
+        }
+        #back-to-top.visible {
+            opacity: 1; /* Visible cuando se añade la clase */
+            visibility: visible; /* Visible cuando se añade la clase */
+        }
+        #back-to-top:hover {
+            background-color: #FFC107;
+        }
+
+        /* --- ESTILOS GENERALES Y DE LA PÁGINA --- */
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif; margin: 0; padding: 0;
+            min-height: 100vh; color: #f5f5f7; position: relative; scroll-behavior: smooth;
+        }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover; z-index: -1;
+        }
+        nav {
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25); display: flex;
+            justify-content: space-between; align-items: center; height: 70px;
+            position: sticky; top: 0; z-index: 100; padding: 0 32px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; gap: 25px; }
+        nav a {
+            color: #f5f5f7; text-decoration: none; font-weight: 500;
+            padding: 10px 18px; border-radius: 8px; transition: background 0.2s, color 0.2s;
+            font-size: 1.1em; display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+        }
+        nav a img { height: 28px; width: 28px; vertical-align: middle; }
+        nav a:hover { background: rgba(255,255,255,0.08); color: #00e6b0; }
+        .container {
+            max-width: 900px; margin: 60px auto 40px; background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px); padding: 32px 25px; border-radius: 18px;
+            box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.25); text-align: center;
+            flex: 1; border: 1.5px solid rgba(0,230,176,0.13);
+        }
+        .panel-container {
+            display: flex; flex-wrap: wrap; justify-content: space-around;
+            gap: 20px; margin-bottom: 20px;
+        }
+        .perfil, .pedidos, .productos, .tarjetas, .bandeja-mensajes {
+            flex: 1; min-width: 300px; padding: 25px; border-radius: 14px;
+            background: rgba(24, 26, 27, 0.82); box-shadow: 0px 5px 18px rgba(0, 0, 0, 0.18);
+            text-align: center; transition: all 0.3s ease-in-out; color: #f5f5f7;
+            border: 1px solid rgba(0,230,176,0.10); margin-bottom: 20px;
+        }
+        .perfil:hover, .pedidos:hover, .productos:hover, .tarjetas:hover, .bandeja-mensajes:hover {
+            transform: translateY(-5px); box-shadow: 0px 8px 22px rgba(0, 230, 176, 0.10);
+        }
+        h2, h3 { color: #00e6b0; letter-spacing: 1px; margin-bottom: 18px; }
+        strong { color: #00e6b0; }
+        .perfil button, .pedidos button, .productos button, .tarjetas button, .bandeja-mensajes button {
+            background: #00e6b0; color: #181a1b; border: none; border-radius: 8px;
+            padding: 12px 18px; font-size: 1em; font-weight: bold; cursor: pointer;
+            transition: background 0.2s, color 0.2s, transform 0.2s; margin-top: 12px;
+        }
+        .perfil button:hover, .pedidos button:hover, .productos button:hover, .tarjetas button:hover, .bandeja-mensajes button:hover {
+            background: #2E7D32; color: #fff; transform: scale(1.05);
+        }
+        footer {
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px); color: #aaa;
+            text-align: center; padding: 18px 0 10px 0; font-size: 1em; letter-spacing: 1px;
+            margin-top: 40px; border-top: 1px solid #222; box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-left">
+             <a href="{{ url_for('inicio') }}">
+                <img src="{{ url_for('static', filename='images/inicio.png') }}" alt="Inicio">Inicio
+            </a>
+             <a href="{{ url_for('productos') }}">
+                <img src="{{ url_for('static', filename='images/mercado.png') }}" alt="Mercado">Mercado
+            </a>
+             <a href="{{ url_for('contacto') }}">
+                <img src="{{ url_for('static', filename='images/contacto.png') }}" alt="Contacto">Contacto
+            </a>
+        </div>
+        <div class="nav-right">
+            {% if session['usuario_id'] %}
+                 <a href="{{ url_for('carrito') }}">
+                <img src="{{ url_for('static', filename='images/carrito.png') }}" alt="Carrito">Carrito
+                    {% if cantidad_carrito and cantidad_carrito > 0 %}
+                        <span style="background:#00e6b0;color:#181a1b;padding:2px 8px;border-radius:12px;font-weight:bold;margin-left:4px;">
+                            {{ cantidad_carrito }}
+                        </span>
+                    {% endif %}
+                </a>
+                <a href="{{ url_for('logout') }}">
+                    <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar">Cerrar Sesión
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Iniciar Sesión</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Panel Cliente</h2>
+        <div class="panel-container">
+            <div class="perfil">
+                <h3>👤 Mi Perfil</h3>
+                <p><strong>Nombre:</strong> {{ usuario.nombre }}</p>
+                <p><strong>Correo:</strong> {{ usuario.email }}</p>
+                <p><strong>Dirección:</strong> {{ direccion.direccion if direccion else "No registrada" }}</p>
+                <button onclick="window.location.href='{{ url_for('perfil_cliente') }}'">Editar Perfil</button>
+            </div>
+            <div class="pedidos">
+                <h3>📦 Historial de pedidos</h3>
+                <p>Consulta tus pedidos recientes.</p>
+                <button style="margin-top: 65px;" onclick="window.location.href='{{ url_for('historial_pedidos') }}'">Ver más</button>
+            </div>
+        </div>
+        <div class="productos-tarjetas-row">
+            <div class="productos">
+                <h3>🌿 Explorar Productos</h3>
+                <p>Descubre productos frescos y locales.</p>
+                <button onclick="window.location.href='{{ url_for('productos') }}'">Ir al mercado</button>
+            </div>
+        </div>
+        <div class="bandeja-mensajes">
+             <h3>✉️ Bandeja de Entrada</h3>
+             <p>Consulta las respuestas del administrador y productores.</p>
+             <button onclick="window.location.href='{{ url_for('bandeja_mensajes_cliente') }}'">Ver Bandeja</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#232526" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Funcionalidad para el botón "Volver Arriba" ---
+            const backToTopButton = document.getElementById('back-to-top');
+            if (backToTopButton) {
+                window.onscroll = function() {
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopButton.classList.add('visible');
+                    } else {
+                        backToTopButton.classList.remove('visible');
+                    }
+                };
+                backToTopButton.addEventListener('click', function() {
+                    window.scrollTo(0, 0);
+                });
+            }
+            
+            // --- OTRAS FUNCIONALIDADES ---
+            // (Aquí puedes agregar el código para el logout modal si es necesario)
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

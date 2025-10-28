@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversación | AgronoMia</title>
+    <style>
+        /* Estilos generales */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            min-height: 100vh;
+            color: #f5f5f7;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        /* --- Barra de Navegación (Estilos de productos.html) --- */
+        nav {
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 32px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+        nav a {
+            display: flex; align-items: center; text-decoration: none; color: #00e6b0;
+            font-weight: 500; padding: 0.5rem 1rem; border-radius: 6px;
+            transition: background-color 0.3s; font-size: 1.1em;
+        }
+        nav a:hover { background-color: #2e3234; }
+        nav img { width: 20px; height: 20px; margin-right: 8px; }
+
+        /* --- Contenedor y Chat --- */
+        .main-content {
+            flex: 1; display: flex; justify-content: center; align-items: flex-start;
+            padding: 40px 15px;
+        }
+        .container {
+            max-width: 800px; width: 100%; background: rgba(24, 26, 27, 0.68);
+            backdrop-filter: blur(12px); padding: 38px 32px; border-radius: 20px;
+            box-shadow: 0px 8px 32px rgba(0,0,0,0.25);
+            border: 1.5px solid rgba(0,230,176,0.13);
+        }
+        h2 { color: #00e6b0; text-align: center; margin-bottom: 1.5rem; }
+        .chat-container { display: flex; flex-direction: column; gap: 1rem; padding: 1rem; background: #1a1d1e; border-radius: 12px; }
+        .mensaje { padding: 10px 15px; border-radius: 20px; max-width: 70%; line-height: 1.5; }
+        .mensaje.cliente { background-color: #37474f; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .mensaje.productor { background-color: #004d40; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .mensaje small { display: block; text-align: right; opacity: 0.7; font-size: 0.8em; margin-top: 5px; }
+
+        /* --- Formulario de Respuesta --- */
+        form { margin-top: 2rem; }
+        label { color: #00e6b0; font-weight: 600; margin-bottom: 8px; display: block; }
+        textarea {
+            width: 100%; padding: 12px; border: 1.5px solid #00e6b0;
+            border-radius: 8px; font-size: 1em; background: rgba(24, 26, 27, 0.65);
+            color: #f5f5f7; resize: vertical; box-sizing: border-box;
+        }
+        button[type="submit"] {
+            background-color: #00e6b0; color: #181a1b; font-size: 1.1em; padding: 12px 24px;
+            border-radius: 8px; font-weight: bold; margin-top: 1rem; border: none; cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        button[type="submit"]:hover { background-color: #00b88a; transform: scale(1.03); }
+
+        /* --- Footer --- */
+        footer {
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px); color: #aaa;
+            text-align: center; padding: 18px 0 10px 0; margin-top: auto;
+        }
+        
+        /* --- Botones Flotantes --- */
+        .floating-btn {
+            position: fixed; z-index: 1001; border: none; border-radius: 50%; width: 60px; height: 60px;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: flex;
+            justify-content: center; align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+        #back-to-top {
+            bottom: 25px; left: 25px; background-color: #FFD700;
+            opacity: 0; visibility: hidden;
+        }
+        #back-to-top.visible { opacity: 1; visibility: visible; }
+        #back-to-top:hover { background-color: #FFC107; }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="#" onclick="history.back(); return false;">
+                <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver"> ← Volver
+            </a>
+        </div>
+        <div class="nav-right">
+             <a href="{{ url_for('carrito') }}">
+                <img src="{{ url_for('static', filename='images/carrito.png') }}" alt="Carrito">Carrito
+                {% if cantidad_carrito and cantidad_carrito > 0 %}
+                    <span style="background:#00e6b0;color:#181a1b;padding:2px 8px;border-radius:12px;font-weight:bold;margin-left:4px;">
+                        {{ cantidad_carrito }}
+                    </span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('panel_cliente') }}">
+                <img src="{{ url_for('static', filename='images/perfil.png') }}" alt="Mi Cuenta">Mi Cuenta
+            </a>
+            <a href="{{ url_for('logout') }}">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar">Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+    <div class="main-content">
+        <div class="container">
+            <h2>Conversación sobre: {{ producto.nombre }}</h2>
+            <div id="chat-box" class="chat-container">
+                {% for mensaje in mensajes %}
+                    <div class="mensaje {{ 'cliente' if mensaje.remitente_tipo == 'cliente' else 'productor' }}">
+                        <p>{{ mensaje.contenido }}</p>
+                        <small>{{ mensaje.fecha.strftime('%d/%m/%Y %H:%M') }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+            <hr style="margin: 2rem 0; border-color: rgba(0,230,176,0.2);">
+            <form method="POST">
+                <label for="contenido">Escribe tu respuesta:</label>
+                <textarea id="contenido" name="contenido" rows="4" placeholder="Escribe aquí..." required></textarea>
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+    </div>
+    <footer>
+         <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+
+    </button>
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#232526" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Auto-scroll al final del chat ---
+            const chatBox = document.getElementById('chat-box');
+            if (chatBox) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+            // --- Funcionalidad para el botón "Volver Arriba" ---
+            const backToTopButton = document.getElementById('back-to-top');
+
+            window.onscroll = function() {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            };
+
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo(0, 0);
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

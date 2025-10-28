@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Pedidos | AgronoMia</title>
+    <style>
+        /* Estilos generales */
+        html, body {
+            height: 100%; margin: 0; padding: 0; scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif; min-height: 100vh;
+            color: #f5f5f7; display: flex; flex-direction: column; position: relative;
+        }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover; z-index: -1;
+        }
+        
+        /* --- Barra de Navegación --- */
+        nav {
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25); display: flex;
+            justify-content: space-between; align-items: center; height: 70px;
+            position: sticky; top: 0; z-index: 100; padding: 0 32px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; gap: 25px; }
+        nav a {
+            color: #f5f5f7; text-decoration: none; font-weight: 500;
+            padding: 10px 18px; border-radius: 8px; transition: background 0.2s, color 0.2s;
+            font-size: 1.1em; display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+        }
+        nav a img { height: 28px; width: 28px; vertical-align: middle; }
+        nav a:hover { background: rgba(255,255,255,0.08); color: #00e6b0; }
+        
+        /* --- Contenedor Principal --- */
+        .container {
+            flex: 1 0 auto; max-width: 1400px; margin: 60px auto 40px auto;
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px);
+            padding: 32px 60px 30px 60px; border-radius: 18px;
+            box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.25); text-align: center;
+            border: 1.5px solid rgba(0,230,176,0.13);
+        }
+        h2 {
+            color: #00e6b0; margin-bottom: 28px; letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+        }
+        .pedido {
+            background: rgba(24, 26, 27, 0.82); border-radius: 14px;
+            box-shadow: 0px 4px 18px rgba(0,0,0,0.18); margin-bottom: 22px;
+            padding: 18px 22px; text-align: left; color: #f5f5f7;
+            border: 1px solid rgba(0,230,176,0.10);
+        }
+        .pedido strong { color: #00e6b0; }
+        .pedido span { font-weight: bold; }
+        .pedido .estado-entregado { color: #00e6b0 !important; }
+        .pedido .estado-pendiente { color: #D32F2F !important; }
+        .lista-items {
+            list-style: none; padding: 10px 0 0 5px; margin-top: 10px;
+            border-top: 1px solid rgba(0,230,176,0.15);
+        }
+        .lista-items li {
+            display: flex; justify-content: space-between; align-items: center; padding: 8px 0;
+        }
+        .contactar-btn {
+            background: #00e6b0; color: #181a1b; text-decoration: none; padding: 6px 16px;
+            border-radius: 7px; font-weight: bold; font-size: 0.9em;
+            transition: background 0.2s, color 0.2s;
+        }
+        .contactar-btn:hover { background: #00b88a; color: #fff; }
+        .volver {
+            display: inline-block; margin: 32px auto 0 auto; background: #232526;
+            color: #00e6b0; font-weight: bold; font-size: 1.1em; padding: 12px 36px;
+            border-radius: 10px; text-decoration: none; border: 1.5px solid #00e6b0;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+        }
+        .volver:hover { background: #00e6b0; color: #181a1b; transform: scale(1.04); }
+        
+        /* --- Footer --- */
+        footer {
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px); color: #aaa;
+            text-align: center; padding: 18px 0 10px 0; margin-top: auto;
+            border-top: 1px solid #222; box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+        }
+
+        /* --- Botones Flotantes --- */
+        .floating-btn {
+            position: fixed; z-index: 1001; border: none; border-radius: 50%; width: 60px; height: 60px;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: flex;
+            justify-content: center; align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+        #back-to-top {
+            bottom: 25px; left: 25px; background-color: #FFD700; opacity: 0; visibility: hidden;
+        }
+        #back-to-top.visible { opacity: 1; visibility: visible; }
+        #back-to-top:hover { background-color: #FFC107; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="{{ url_for('panel_cliente') }}">
+                <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver">
+                Volver
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('logout') }}" id="logout-link">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión">
+                Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>📜 Historial de Pedidos</h2>
+        {% if pedidos %}
+            {% for pedido in pedidos %}
+                <div class="pedido">
+                    <p>
+                        <strong>Pedido #{{ pedido.id }}</strong> | 
+                        Fecha: {{ pedido.fecha.strftime('%d/%m/%Y %H:%M') }} | 
+                        Total: <strong>${{ "%.2f"|format(pedido.total) }}</strong>
+                    </p>
+                    <p>
+                        Estado:
+                        {% if pedido.estado == 'Entregado' %}
+                            <span class="estado-entregado">Entregado</span>
+                        {% elif pedido.estado == 'aprobado' %}
+                            <span style="color: #4CAF50; font-weight: bold;">Aprobado</span>
+                        {% else %}
+                            <span class="estado-pendiente">Pendiente</span>
+                        {% endif %}
+                    </p>
+                    
+                    <ul class="lista-items">
+                        {% for item in pedido.items %}
+                            <li>
+                                <span>{{ item.producto.nombre }} (x{{ item.cantidad }})</span>
+                                <a href="{{ url_for('enviar_mensaje_cliente', productor_id=item.producto.productor_id, producto_id=item.producto.id) }}" class="contactar-btn">
+                                    Contactar Productor
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if pedido.estado == 'aprobado' %}
+                        <a href="{{ url_for('descargar_factura_pdf', pedido_id=pedido.id) }}" class="contactar-btn" style="margin-top: 10px; background: #009ee3;">
+                            Descargar Factura
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No tienes pedidos registrados.</p>
+        {% endif %}
+    </div>
+    <footer>
+        <p>© 2025 AgronoMia - Todos los derechos reservados</p>
+    </footer>
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#232526" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // --- Funcionalidad para el botón "Volver Arriba" ---
+            const backToTopButton = document.getElementById('back-to-top');
+            window.onscroll = function() {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            };
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo(0, 0);
+            });
+
+            // --- OTRAS FUNCIONALIDADES ---
+            // (Aquí puedes agregar el código para el logout modal si es necesario)
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>

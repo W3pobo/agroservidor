@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Productos | AgronoMia</title>
+    <style>
+        /* Estilos generales */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        /* Corrección: Aplica el filtro de escala de grises a todo el documento */
+        html.grayscale {
+            filter: grayscale(100%);
+            -webkit-filter: grayscale(100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            min-height: 100vh;
+            color: #f5f5f7;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Pseudo-elemento para la imagen de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        /* --- Barra de Navegación --- */
+        nav {
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 32px;
+        }
+        .nav-left, .nav-right { display: flex; align-items: center; gap: 25px; }
+        nav a {
+            color: #f5f5f7; text-decoration: none; font-weight: 500; padding: 10px 18px;
+            border-radius: 8px; transition: background 0.2s, color 0.2s; font-size: 1.1em;
+            display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+        }
+        nav a img { height: 28px; width: 28px; vertical-align: middle; }
+        nav a:hover { background: rgba(255,255,255,0.08); color: #00e6b0; }
+
+        /* --- Contenedor Principal --- */
+        .container {
+            flex: 1 0 auto;
+            max-width: 1400px;
+            margin: 60px auto 40px auto;
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            padding: 32px 60px 30px 60px;
+            border-radius: 18px;
+            box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            border: 1.5px solid rgba(0,230,176,0.13);
+        }
+        h2 {
+            color: #00e6b0;
+            margin-bottom: 28px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+        }
+
+        /* --- Lista de Productos --- */
+        .producto-list { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
+        .producto-item {
+            background: rgba(24, 26, 27, 0.82); border-radius: 14px;
+            box-shadow: 0px 4px 18px rgba(0,0,0,0.18); margin-bottom: 22px;
+            padding: 18px 22px; text-align: left; color: #f5f5f7;
+            border: 1px solid rgba(0,230,176,0.10); width: 320px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .producto-item img { width: 120px; height: 120px; object-fit: cover; border-radius: 10px; margin-bottom: 12px; }
+        .producto-item p { margin: 6px 0; width: 100%; font-size: 0.9em; }
+        .producto-item p strong { color: #00e6b0; }
+        .producto-item form, .producto-item a.actualizar-btn { margin-top: auto; padding-top:10px; width: 100%; }
+        .producto-item button, .producto-item a.actualizar-btn {
+            background: #232526; color: #00e6b0; font-weight: bold; font-size: 1em;
+            padding: 10px 0; border-radius: 8px; text-decoration: none;
+            border: 1.5px solid #00e6b0; box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+            display: block; text-align: center; margin-bottom: 8px; cursor: pointer;
+        }
+        .producto-item button:hover, .producto-item a.actualizar-btn:hover { background: #00e6b0; color: #181a1b; transform: scale(1.04); }
+
+        /* --- Botón "Agregar Producto" --- */
+        .agregar-producto { margin-bottom: 32px; text-align: center; }
+        .agregar-producto a {
+            display: inline-block; background: #00e6b0; color: #181a1b; font-weight: bold;
+            font-size: 1.1em; padding: 12px 36px; border-radius: 10px; text-decoration: none;
+            border: none; box-shadow: 0 4px 18px rgba(0, 230, 176, 0.15);
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .agregar-producto a:hover {
+            background-color: #00b88a; color: #fff; transform: scale(1.05);
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: rgba(24, 26, 27, 0.65); backdrop-filter: blur(10px); color: #aaa;
+            text-align: center; padding: 18px 0 10px 0; font-size: 1em;
+            letter-spacing: 1px; margin-top: auto; border-top: 1px solid #222;
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+        }
+        .floating-btn {
+            position: fixed;
+            z-index: 1001;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
+        }
+        .floating-btn:hover { transform: scale(1.1); }
+
+        #back-to-top {
+            bottom: 25px;
+            right: 25px;
+            left: auto;
+            background-color: #FFD700;
+            opacity: 0;
+            visibility: hidden;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            background-color: #FFC107;
+        }
+
+        /* --- ESTILOS DEL MODAL (AÑADIDOS) --- */
+        #logout-modal-bg {
+            position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(24, 26, 27, 0.55); backdrop-filter: blur(8px);
+            display: none; /* Oculto por defecto */
+            justify-content: center; align-items: center; transition: background 0.3s;
+        }
+        #logout-modal-bg.active { display: flex; } /* Muestra el modal */
+        #logout-modal {
+            background: rgba(24, 26, 27, 0.92); border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.28); padding: 48px 38px 36px 38px;
+            text-align: center; max-width: 370px; width: 90vw; color: #f5f5f7;
+        }
+        #logout-modal h2 {
+            color: #00e6b0; font-size: 2em; margin-bottom: 18px; font-weight: 800; letter-spacing: 1px;
+        }
+        #logout-modal p {
+            font-size: 1.15em; margin-bottom: 32px; color: #e0f7fa;
+        }
+        .modal-btns { display: flex; justify-content: center; gap: 22px; }
+        .modal-btn {
+            padding: 12px 32px; border-radius: 8px; border: none; font-size: 1.1em;
+            font-weight: bold; transition: background 0.2s, color 0.2s, transform 0.15s;
+            cursor: pointer;
+        }
+        .modal-btn.confirm { background: #c62828; color: #fff; } /* Rojo para confirmar logout */
+        .modal-btn.confirm:hover { background: #a12020; transform: scale(1.03); }
+        .modal-btn.cancel { background: #424242; color: #f5f5f7; }
+        .modal-btn.cancel:hover { background: #616161; transform: scale(1.03); }
+        /* === FIN DE ESTILOS DEL MODAL === */
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <a href="{{ url_for('panel_productor') }}">
+                <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver"> Volver
+            </a>
+            <a href="{{ url_for('panel_productor') }}">
+                <img src="{{ url_for('static', filename='images/panel.png') }}" alt="Panel Productor"> Panel Productor
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('perfil_productor') }}">
+                <img src="{{ url_for('static', filename='images/perfil.png') }}" alt="Mi Perfil"> Mi Perfil
+            </a>
+            <a href="#" id="logout-link">
+                <img src="{{ url_for('static', filename='images/cerrar.png') }}" alt="Cerrar Sesión"> Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>Mis Productos</h2>
+        <div class="agregar-producto">
+            <a href="{{ url_for('agregar_producto_productor') }}">🌱 Agregar Nuevo Producto</a>
+        </div>
+        <div class="producto-list">
+            {% for producto in productos %}
+                <div class="producto-item">
+                    <img src="{{ url_for('static', filename='images/' + producto.imagen) }}" alt="{{ producto.nombre }}">
+                    <p><strong>ID:</strong> {{ producto.id }}</p>
+                    <p><strong>Nombre:</strong> {{ producto.nombre }}</p>
+                    <p><strong>Precio:</strong> ${{ "%.2f"|format(producto.precio) }}</p>
+
+                    <p><strong>Germinación:</strong> {{ producto.tiempo_germinacion or 'N/A' }} días</p>
+                    <p><strong>Época Siembra:</strong> {{ producto.epoca_siembra or 'N/A' }}</p>
+                    <p><strong>Cant. Semillas:</strong> {{ producto.cantidad_semillas or 'N/A' }}</p>
+
+                    <form action="{{ url_for('eliminar_producto', producto_id=producto.id) }}" method="post" onsubmit="return confirm('¿Seguro que quieres eliminar este producto?');">
+                        <button type="submit">Eliminar</button>
+                    </form>
+                    <a href="{{ url_for('actualizar_producto', producto_id=producto.id) }}" class="actualizar-btn">Actualizar</a>
+                </div>
+            {% else %}
+                <p>No tienes productos registrados.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <footer><p>© 2025 AgronoMia - Todos los derechos reservados</p></footer>
+
+     <div id="logout-modal-bg">
+        <div id="logout-modal">
+            <h2>¿Cerrar sesión?</h2>
+            <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+            <div class="modal-btns">
+                <form id="logout-form" method="get" style="display:inline;">
+                    <button type="button" class="modal-btn confirm" onclick="cerrarSesionYRedirigir(event)">Sí, cerrar sesión</button>
+                </form>
+                <button class="modal-btn cancel" onclick="cerrarLogoutModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <button id="back-to-top" class="floating-btn" title="Volver Arriba">
+        <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver Arriba" style="width: 24px; height: 24px;">
+    </button>
+
+    <script>
+        // --- FUNCIONES MODAL (AÑADIDAS) ---
+        function abrirLogoutModal() {
+            document.getElementById('logout-modal-bg').classList.add('active');
+            document.body.style.overflow = 'hidden'; // Evita scroll del fondo
+        }
+        function cerrarLogoutModal() {
+            document.getElementById('logout-modal-bg').classList.remove('active');
+            document.body.style.overflow = ''; // Restaura scroll
+        }
+
+        // --- CÓDIGO AÑADIDO PARA MANEJO DE HISTORIAL ---
+        window.addEventListener('popstate', function() {
+             location.reload(true); // El 'true' fuerza a recargar desde el servidor
+        });
+
+        function cerrarSesionYRedirigir(event) {
+            event.preventDefault();
+            history.replaceState(null, null, window.location.href);
+            window.location.replace("{{ url_for('logout') }}");
+            // No es ideal añadir el listener de popstate aquí, es mejor en el servidor
+        }
+
+        // Empuja el estado actual al historial al cargar la página.
+        history.pushState(null, null, window.location.href);
+        // --- FIN CÓDIGO AÑADIDO ---
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Logout Modal Listener (AÑADIDO)
+            const logoutLink = document.getElementById('logout-link');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', e => {
+                    e.preventDefault(); // Previene la navegación inmediata
+                    abrirLogoutModal();   // Abre el modal
+                });
+            }
+            // Listener para cerrar modal con Escape (AÑADIDO)
+            document.addEventListener('keydown', e => {
+                if (e.key === "Escape") cerrarLogoutModal();
+            });
+
+             // === LÓGICA DE ACCESIBILIDAD ACTUALIZADA ===
+            // --- Funcionalidad para el botón "Volver Arriba" ---
+            const backToTopButton = document.getElementById('back-to-top');
+            if (backToTopButton) {
+                window.onscroll = function() {
+                    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                        backToTopButton.classList.add('visible');
+                    } else {
+                        backToTopButton.classList.remove('visible');
+                    }
+                };
+                backToTopButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/accesibilidad.js') }}"></script>
+</body>
+</html>
