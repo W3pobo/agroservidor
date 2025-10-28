@@ -494,3 +494,73 @@ footer {
     from { opacity: 0; transform: scale(0.97);}
     to { opacity: 1; transform: scale(1);}
 }
+
+/* ======================================= */
+/* === INICIO DE ESTILOS RESPONSIVOS === */
+/* ======================================= */
+
+/* Se aplica a pantallas de 768px o menos (tablets y celulares) */
+@media (max-width: 768px) {
+
+    /* 1. ARREGLO DE LA BARRA DE NAVEGACIÓN */
+    nav {
+        flex-direction: column; /* Apila .nav-left y .nav-right */
+        height: auto;           /* Permite que la altura se ajuste */
+        padding: 10px 16px;     /* Menos padding en móvil */
+    }
+
+    .nav-left, .nav-right {
+        flex-direction: column; /* Apila los enlaces */
+        width: 100%;
+        align-items: center;    /* Centra los enlaces */
+        gap: 10px;              /* Espacio entre enlaces */
+    }
+
+    .nav-right {
+        margin-top: 15px; /* Espacio entre los dos bloques de enlaces */
+    }
+
+    nav a {
+        padding: 10px;          /* Área de toque más grande */
+        width: 100%;            /* Ocupa todo el ancho */
+        box-sizing: border-box; /* Evita que el padding rompa el diseño */
+        justify-content: center;/* Centra el icono y texto */
+        background: rgba(255, 255, 255, 0.05); /* Fondo para ver el área de toque */
+    }
+
+    /* 2. ARREGLO DEL BANNER Y FUENTES (anulando el <style> del HTML) */
+    .logo-banner-glass {
+        padding: 20px;
+        margin: 20px auto;
+    }
+    
+    .logo-banner-content h1 {
+        font-size: 2em; /* Fuente más pequeña para el título */
+    }
+    
+    .logo-banner-content p {
+        font-size: 1em; /* Fuente más pequeña para el párrafo */
+    }
+    
+    .logo-img-main {
+        max-width: 150px; /* Logo más pequeño */
+    }
+
+    /* 3. ARREGLO DE TARJETAS Y ALERTAS */
+    .info-card {
+        padding: 20px; /* Menos espacio interno en tarjetas */
+    }
+
+    .alert {
+        width: 90%;
+        max-width: 90%; /* Asegura que la alerta no sea demasiado ancha */
+    }
+    
+    /* 4. AJUSTE DE BOTÓN FLOTANTE */
+    #back-to-top {
+        left: 15px;   /* Más cerca del borde */
+        bottom: 15px;
+        width: 50px;  /* Ligeramente más pequeño */
+        height: 50px;
+    }
+}
