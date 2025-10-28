@@ -6,45 +6,276 @@
     <title>AgronoMia - Productos</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo4.css') }}">
     <style>
-
         /* Estilos generales */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #1a1d1e; color: #e8e6e3; }
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: #232526; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); position: sticky; top: 0; z-index: 1000; /* Asegura que la nav esté encima */}
-        .nav-left, .nav-right { display: flex; gap: 1.5rem; align-items: center; }
-        nav a { display: flex; align-items: center; text-decoration: none; color: #00e6b0; font-weight: 500; padding: 0.5rem 1rem; border-radius: 6px; transition: background-color 0.3s; }
-        nav a:hover { background-color: #2e3234; }
-        nav img { width: 20px; height: 20px; margin-right: 8px; }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; }
-        h2 { color: #00e6b0; text-align: center; margin-bottom: 2rem; font-size: 2.2rem; }
-        .productos-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
-        .producto-item { background: linear-gradient(145deg, #232526, #2c2f31); border-radius: 12px; padding: 1.5rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; }
-        .producto-item:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); }
-        .producto-item img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem; }
-        .producto-item .producto-info { flex-grow: 1; display: flex; flex-direction: column; }
-        .boton-carrito { background-color: #00e6b0; color: #181a1b; border: none; padding: 0.8rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 1rem; transition: background-color 0.3s; }
-        .boton-carrito:hover { background-color: #00b88a; }
-        footer { text-align: center; padding: 2rem; margin-top: 3rem; background-color: #232526; color: #e8e6e3; position: relative; }
-        .admin-actions { display: flex; gap: 10px; margin-top: 1rem; }
-        .admin-actions a, .admin-actions button { flex: 1; padding: 0.7rem; border-radius: 6px; cursor: pointer; font-weight: bold; text-align: center; text-decoration: none; transition: background-color 0.3s, transform 0.2s; font-size: 0.9em; }
-        .boton-actualizar { background-color: #ffc107; color: #181a1b; border: none; }
-        .boton-actualizar:hover { background-color: #e0a800; transform: scale(1.03); }
-        .boton-eliminar { background-color: #dc3545; color: white; border: none; }
-        .boton-eliminar:hover { background-color: #c82333; transform: scale(1.03); }
-        .search-container { display: flex; justify-content: center; margin-bottom: 2rem; }
-        .search-input { padding: 0.7rem 1rem; border: 2px solid #444; border-radius: 6px; background-color: #232526; color: #e8e6e3; width: 300px; transition: border-color 0.3s; }
-        .search-input:focus { border-color: #00e6b0; outline: none; }
-        .category-buttons { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
-        .category-button { background-color: #232526; color: #00e6b0; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
-        .category-button:hover, .category-button.active { background-color: #00e6b0; color: #181a1b; }
-        .producto-nombre { color: #fff; font-size: 1.25em; margin-top: 0; margin-bottom: 0.5rem; font-weight: 600; }
-        .producto-descripcion { font-size: 0.9em; color: #b0bec5; line-height: 1.5; margin-bottom: 1rem; flex-grow: 1; }
-        .producto-detalles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 0.75rem 0; border-top: 1px solid #37474f; border-bottom: 1px solid #37474f; margin-bottom: 1rem; }
-        .detalle-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95em; }
-        .detalle-icon { font-size: 1.2em; }
-        .producto-semillas-info { background-color: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 0.75rem 1rem; margin-top: auto; }
-        .producto-semillas-info h4 { margin: 0 0 0.5rem 0; color: #00e6b0; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; }
-        .producto-semillas-info ul { list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: #cfd8dc; }
-        .producto-semillas-info li { margin-bottom: 0.25rem; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #1a1d1e; 
+            color: #e8e6e3; 
+        }
+        
+        nav { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 1rem 2rem; 
+            background-color: #232526; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000;
+        }
+        
+        .nav-left, .nav-right { 
+            display: flex; 
+            gap: 1.5rem; 
+            align-items: center; 
+        }
+        
+        nav a { 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none; 
+            color: #00e6b0; 
+            font-weight: 500; 
+            padding: 0.5rem 1rem; 
+            border-radius: 6px; 
+            transition: background-color 0.3s; 
+        }
+        
+        nav a:hover { 
+            background-color: #2e3234; 
+        }
+        
+        nav img { 
+            width: 20px; 
+            height: 20px; 
+            margin-right: 8px; 
+        }
+        
+        .container { 
+            max-width: 1200px; 
+            margin: 2rem auto; 
+            padding: 0 1.5rem; 
+        }
+        
+        h2 { 
+            color: #00e6b0; 
+            text-align: center; 
+            margin-bottom: 2rem; 
+            font-size: 2.2rem; 
+        }
+        
+        .productos-lista { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 1.5rem; 
+            margin: 1.5rem 0; 
+        }
+        
+        .producto-item { 
+            background: linear-gradient(145deg, #232526, #2c2f31); 
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); 
+            transition: transform 0.3s, box-shadow 0.3s; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        .producto-item:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); 
+        }
+        
+        .producto-item img { 
+            width: 100%; 
+            height: 180px; 
+            object-fit: cover; 
+            border-radius: 8px; 
+            margin-bottom: 1rem; 
+        }
+        
+        .producto-item .producto-info { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        .boton-carrito { 
+            background-color: #00e6b0; 
+            color: #181a1b; 
+            border: none; 
+            padding: 0.8rem 1.5rem; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            margin-top: 1rem; 
+            transition: background-color 0.3s; 
+        }
+        
+        .boton-carrito:hover { 
+            background-color: #00b88a; 
+        }
+        
+        footer { 
+            text-align: center; 
+            padding: 2rem; 
+            margin-top: 3rem; 
+            background-color: #232526; 
+            color: #e8e6e3; 
+            position: relative; 
+        }
+        
+        .admin-actions { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 1rem; 
+        }
+        
+        .admin-actions a, .admin-actions button { 
+            flex: 1; 
+            padding: 0.7rem; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            text-align: center; 
+            text-decoration: none; 
+            transition: background-color 0.3s, transform 0.2s; 
+            font-size: 0.9em; 
+        }
+        
+        .boton-actualizar { 
+            background-color: #ffc107; 
+            color: #181a1b; 
+            border: none; 
+        }
+        
+        .boton-actualizar:hover { 
+            background-color: #e0a800; 
+            transform: scale(1.03); 
+        }
+        
+        .boton-eliminar { 
+            background-color: #dc3545; 
+            color: white; 
+            border: none; 
+        }
+        
+        .boton-eliminar:hover { 
+            background-color: #c82333; 
+            transform: scale(1.03); 
+        }
+        
+        .search-container { 
+            display: flex; 
+            justify-content: center; 
+            margin-bottom: 2rem; 
+        }
+        
+        .search-input { 
+            padding: 0.7rem 1rem; 
+            border: 2px solid #444; 
+            border-radius: 6px; 
+            background-color: #232526; 
+            color: #e8e6e3; 
+            width: 300px; 
+            transition: border-color 0.3s; 
+        }
+        
+        .search-input:focus { 
+            border-color: #00e6b0; 
+            outline: none; 
+        }
+        
+        .category-buttons { 
+            display: flex; 
+            justify-content: center; 
+            gap: 1rem; 
+            margin-bottom: 2rem; 
+            flex-wrap: wrap; 
+        }
+        
+        .category-button { 
+            background-color: #232526; 
+            color: #00e6b0; 
+            border: none; 
+            padding: 0.5rem 1rem; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            transition: background-color 0.3s, color 0.3s; 
+        }
+        
+        .category-button:hover, .category-button.active { 
+            background-color: #00e6b0; 
+            color: #181a1b; 
+        }
+        
+        .producto-nombre { 
+            color: #fff; 
+            font-size: 1.25em; 
+            margin-top: 0; 
+            margin-bottom: 0.5rem; 
+            font-weight: 600; 
+        }
+        
+        .producto-descripcion { 
+            font-size: 0.9em; 
+            color: #b0bec5; 
+            line-height: 1.5; 
+            margin-bottom: 1rem; 
+            flex-grow: 1; 
+        }
+        
+        .producto-detalles-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 1rem; 
+            padding: 0.75rem 0; 
+            border-top: 1px solid #37474f; 
+            border-bottom: 1px solid #37474f; 
+            margin-bottom: 1rem; 
+        }
+        
+        .detalle-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            font-size: 0.95em; 
+        }
+        
+        .detalle-icon { 
+            font-size: 1.2em; 
+        }
+        
+        .producto-semillas-info { 
+            background-color: rgba(0, 0, 0, 0.2); 
+            border-radius: 8px; 
+            padding: 0.75rem 1rem; 
+            margin-top: auto; 
+        }
+        
+        .producto-semillas-info h4 { 
+            margin: 0 0 0.5rem 0; 
+            color: #00e6b0; 
+            font-size: 0.9em; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
+        
+        .producto-semillas-info ul { 
+            list-style: none; 
+            padding: 0; 
+            margin: 0; 
+            font-size: 0.85em; 
+            color: #cfd8dc; 
+        }
+        
+        .producto-semillas-info li { 
+            margin-bottom: 0.25rem; 
+        }
 
         .floating-btn {
             position: fixed;
@@ -60,22 +291,299 @@
             align-items: center;
             transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
         }
-        .floating-btn:hover { transform: scale(1.1); }
+        
+        .floating-btn:hover { 
+            transform: scale(1.1); 
+        }
 
         #back-to-top {
             bottom: 25px;
-            right: 25px; /* <-- MODIFICADO */
-            left: auto;   /* <-- MODIFICADO */
-            background-color: #FFD700; /* Color dorado para distinguirlo */
+            right: 25px;
+            left: auto;
+            background-color: #FFD700;
             opacity: 0;
             visibility: hidden;
         }
+        
         #back-to-top.visible {
             opacity: 1;
             visibility: visible;
         }
+        
         #back-to-top:hover {
             background-color: #FFC107;
+        }
+
+        /* ======================================= */
+        /* === MEDIA QUERIES RESPONSIVAS === */
+        /* ======================================= */
+
+        /* Tablets (768px o menos) */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                padding: 0.8rem 1rem;
+                gap: 0.8rem;
+            }
+            
+            .nav-left, .nav-right {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.8rem;
+            }
+            
+            nav a {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9em;
+            }
+            
+            nav img {
+                width: 16px;
+                height: 16px;
+                margin-right: 6px;
+            }
+            
+            .container {
+                margin: 1.5rem auto;
+                padding: 0 1rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .productos-lista {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.2rem;
+            }
+            
+            .producto-item {
+                padding: 1.2rem;
+            }
+            
+            .producto-item img {
+                height: 160px;
+            }
+            
+            .search-input {
+                width: 250px;
+                padding: 0.6rem 0.8rem;
+            }
+            
+            .category-buttons {
+                gap: 0.8rem;
+            }
+            
+            .category-button {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9em;
+            }
+            
+            .producto-nombre {
+                font-size: 1.1em;
+            }
+            
+            .producto-descripcion {
+                font-size: 0.85em;
+            }
+            
+            .boton-carrito {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9em;
+            }
+            
+            .admin-actions a, .admin-actions button {
+                padding: 0.6rem;
+                font-size: 0.85em;
+            }
+            
+            .floating-btn {
+                width: 50px;
+                height: 50px;
+            }
+            
+            #back-to-top {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        /* Móviles (480px o menos) */
+        @media (max-width: 480px) {
+            nav {
+                padding: 0.6rem 0.8rem;
+            }
+            
+            .nav-left, .nav-right {
+                gap: 0.6rem;
+            }
+            
+            nav a {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.85em;
+            }
+            
+            nav img {
+                width: 14px;
+                height: 14px;
+                margin-right: 4px;
+            }
+            
+            .container {
+                margin: 1rem auto;
+                padding: 0 0.8rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+                margin-bottom: 1.2rem;
+            }
+            
+            .productos-lista {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .producto-item {
+                padding: 1rem;
+            }
+            
+            .producto-item img {
+                height: 140px;
+            }
+            
+            .search-container {
+                margin-bottom: 1.5rem;
+            }
+            
+            .search-input {
+                width: 100%;
+                max-width: 280px;
+                padding: 0.5rem 0.8rem;
+            }
+            
+            .category-buttons {
+                gap: 0.6rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .category-button {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.85em;
+            }
+            
+            .producto-nombre {
+                font-size: 1em;
+            }
+            
+            .producto-descripcion {
+                font-size: 0.8em;
+            }
+            
+            .producto-detalles-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+            
+            .detalle-item {
+                font-size: 0.9em;
+            }
+            
+            .producto-semillas-info {
+                padding: 0.6rem 0.8rem;
+            }
+            
+            .producto-semillas-info h4 {
+                font-size: 0.85em;
+            }
+            
+            .producto-semillas-info ul {
+                font-size: 0.8em;
+            }
+            
+            .boton-carrito {
+                padding: 0.6rem 1rem;
+                font-size: 0.85em;
+            }
+            
+            .admin-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .admin-actions a, .admin-actions button {
+                padding: 0.5rem;
+                font-size: 0.8em;
+            }
+            
+            footer {
+                padding: 1.5rem;
+                margin-top: 2rem;
+            }
+            
+            .floating-btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            #back-to-top {
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            #back-to-top img {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        /* Móviles muy pequeños (360px o menos) */
+        @media (max-width: 360px) {
+            nav a {
+                font-size: 0.8em;
+                padding: 0.25rem 0.5rem;
+            }
+            
+            .container {
+                padding: 0 0.5rem;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            .producto-item {
+                padding: 0.8rem;
+            }
+            
+            .producto-item img {
+                height: 120px;
+            }
+            
+            .search-input {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.9em;
+            }
+            
+            .category-button {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.8em;
+            }
+            
+            .producto-nombre {
+                font-size: 0.95em;
+            }
+            
+            .producto-descripcion {
+                font-size: 0.75em;
+            }
+            
+            .boton-carrito {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8em;
+            }
         }
     </style>
 </head>
@@ -92,7 +600,8 @@
                 </a>
             {% endif %}
 
-            {% if tipo_usuario != 'Administrador' and tipo_usuario != 'Productor' %} <a href="{{ url_for('productores') }}">
+            {% if tipo_usuario != 'Administrador' and tipo_usuario != 'Productor' %} 
+                <a href="{{ url_for('productores') }}">
                     <img src="{{ url_for('static', filename='images/productor.png') }}" alt="Productores">Productores
                 </a>
                 <a href="{{ url_for('contacto') }}">
@@ -204,7 +713,6 @@
     <button id="back-to-top" class="floating-btn" title="Volver Arriba">
         <img src="{{ url_for('static', filename='images/volver.png') }}" alt="Volver Arriba" style="width: 24px; height: 24px;">
     </button>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
