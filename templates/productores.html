@@ -4,15 +4,182 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Productores | AgronoMia</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo5.css') }}">
     <style>
+        /* ======================================= */
+        /* === ESTILOS GENERALES RESPONSIVOS === */
+        /* ======================================= */
+        
+        /* Estilos base */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            min-height: 100vh;
+            color: #f5f5f7;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-color: #1a1d1e;
+        }
+
+        /* Pseudo-elemento para la imagen de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('{{ url_for("static", filename="images/background-login.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        /* --- Barra de Navegación Responsiva --- */
+        nav {
+            background: rgba(24, 26, 27, 0.85);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: auto;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 10px 20px;
+        }
+        
+        .nav-left, .nav-right { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+        }
+        
+        nav a {
+            color: #f5f5f7; 
+            text-decoration: none; 
+            font-weight: 500; 
+            padding: 8px 12px;
+            border-radius: 8px; 
+            transition: background 0.2s, color 0.2s; 
+            font-size: 1em;
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            letter-spacing: 0.5px;
+        }
+        
+        nav a img { 
+            height: 22px; 
+            width: 22px; 
+            vertical-align: middle; 
+        }
+        
+        nav a:hover { 
+            background: rgba(255,255,255,0.08); 
+            color: #00e6b0; 
+        }
+
+        /* --- Contenedor Principal --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 30px;
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            border-radius: 22px;
+            box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.25);
+            border: 1.5px solid rgba(0,230,176,0.13);
+            flex: 1;
+        }
+
+        h2 {
+            color: #00e6b0;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.2rem;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+        }
+
+        /* --- Estilos de Productores --- */
+        .productor-item {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            padding: 20px;
+            background: rgba(24, 26, 27, 0.82);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+            border: 1px solid rgba(255,255,255,0.07);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .productor-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+        }
+
+        .productor-item img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #00e6b0;
+            flex-shrink: 0;
+        }
+
+        .productor-item h4 {
+            color: #00e6b0;
+            font-size: 1.4em;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+
+        .productor-item p {
+            color: #e0e0e0;
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+
+        .productor-item strong {
+            color: #f5f5f7;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: rgba(24, 26, 27, 0.65);
+            backdrop-filter: blur(10px);
+            color: #aaa;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            margin-top: auto;
+            border-top: 1px solid #222;
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+        }
+
+        /* --- Botones Flotantes --- */
         .floating-btn {
             position: fixed;
             z-index: 1001;
             border: none;
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             display: flex;
@@ -20,54 +187,299 @@
             align-items: center;
             transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease, visibility 0.3s;
         }
-        .floating-btn:hover { transform: scale(1.1); }
-
+        
+        .floating-btn:hover { 
+            transform: scale(1.1); 
+        }
+        
         #back-to-top {
-            bottom: 25px;
-            right: 25px; /* <-- MODIFICADO */
-            left: auto;   /* <-- MODIFICADO */
-            background-color: #FFD700; /* Color dorado para distinguirlo */
+            bottom: 20px;
+            right: 20px;
+            background-color: #FFD700;
             opacity: 0;
             visibility: hidden;
         }
+        
         #back-to-top.visible {
             opacity: 1;
             visibility: visible;
         }
+        
         #back-to-top:hover {
             background-color: #FFC107;
         }
 
-         /* --- ESTILOS DEL MODAL (AÑADIDOS) --- */
+        /* --- ESTILOS DEL MODAL --- */
         #logout-modal-bg {
-            position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
-            background: rgba(24, 26, 27, 0.55); backdrop-filter: blur(8px);
-            display: none; /* Oculto por defecto */
-            justify-content: center; align-items: center; transition: background 0.3s;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(24, 26, 27, 0.55);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
         }
-        #logout-modal-bg.active { display: flex; } /* Muestra el modal */
+        
+        #logout-modal-bg.active {
+            display: flex;
+        }
+        
         #logout-modal {
-            background: rgba(24, 26, 27, 0.92); border-radius: 18px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.28); padding: 48px 38px 36px 38px;
-            text-align: center; max-width: 370px; width: 90vw; color: #f5f5f7;
+            background: rgba(24, 26, 27, 0.92);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+            padding: 30px;
+            text-align: center;
+            max-width: 370px;
+            width: 90vw;
+            color: #f5f5f7;
         }
+        
         #logout-modal h2 {
-            color: #00e6b0; font-size: 2em; margin-bottom: 18px; font-weight: 800; letter-spacing: 1px;
+            color: #00e6b0;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            font-weight: 800;
+            letter-spacing: 1px;
         }
+        
         #logout-modal p {
-            font-size: 1.15em; margin-bottom: 32px; color: #e0f7fa;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            color: #e0f7fa;
         }
-        .modal-btns { display: flex; justify-content: center; gap: 22px; }
+        
+        .modal-btns {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
         .modal-btn {
-            padding: 12px 32px; border-radius: 8px; border: none; font-size: 1.1em;
-            font-weight: bold; transition: background 0.2s, color 0.2s, transform 0.15s;
+            padding: 10px 25px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
             cursor: pointer;
         }
-        .modal-btn.confirm { background: #c62828; color: #fff; } /* Rojo para confirmar logout */
-        .modal-btn.confirm:hover { background: #a12020; transform: scale(1.03); }
-        .modal-btn.cancel { background: #424242; color: #f5f5f7; }
-        .modal-btn.cancel:hover { background: #616161; transform: scale(1.03); }
-        /* === FIN DE ESTILOS DEL MODAL === */
+        
+        .modal-btn.confirm {
+            background: #c62828;
+            color: #fff;
+        }
+        
+        .modal-btn.confirm:hover {
+            background: #a12020;
+            transform: scale(1.03);
+        }
+        
+        .modal-btn.cancel {
+            background: #424242;
+            color: #f5f5f7;
+        }
+        
+        .modal-btn.cancel:hover {
+            background: #616161;
+            transform: scale(1.03);
+        }
+
+        /* ======================================= */
+        /* === MEDIA QUERIES RESPONSIVAS === */
+        /* ======================================= */
+
+        /* Tablets (768px o menos) */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                padding: 10px 15px;
+                gap: 10px;
+            }
+            
+            .nav-left, .nav-right {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            nav a {
+                padding: 8px 10px;
+                font-size: 0.9em;
+            }
+            
+            nav a img {
+                height: 18px;
+                width: 18px;
+            }
+            
+            .container {
+                margin: 20px 15px;
+                padding: 20px;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .productor-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .productor-item img {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .productor-item h4 {
+                font-size: 1.2em;
+            }
+            
+            .floating-btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            #back-to-top {
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+
+        /* Móviles (480px o menos) */
+        @media (max-width: 480px) {
+            nav {
+                padding: 8px 10px;
+            }
+            
+            .nav-left, .nav-right {
+                gap: 8px;
+            }
+            
+            nav a {
+                padding: 6px 8px;
+                font-size: 0.85em;
+            }
+            
+            nav a img {
+                height: 16px;
+                width: 16px;
+            }
+            
+            .container {
+                margin: 15px 10px;
+                padding: 15px;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+                margin-bottom: 1.2rem;
+            }
+            
+            .productor-item {
+                padding: 12px;
+                gap: 12px;
+            }
+            
+            .productor-item img {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .productor-item h4 {
+                font-size: 1.1em;
+            }
+            
+            .productor-item p {
+                font-size: 0.9em;
+            }
+            
+            #logout-modal {
+                padding: 20px;
+            }
+            
+            #logout-modal h2 {
+                font-size: 1.5em;
+            }
+            
+            #logout-modal p {
+                font-size: 1em;
+            }
+            
+            .modal-btns {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal-btn {
+                padding: 8px 20px;
+                font-size: 0.9em;
+            }
+            
+            footer {
+                padding: 12px 0;
+                font-size: 0.85em;
+            }
+            
+            .floating-btn {
+                width: 40px;
+                height: 40px;
+            }
+            
+            #back-to-top {
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            #back-to-top img {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        /* Móviles muy pequeños (360px o menos) */
+        @media (max-width: 360px) {
+            nav a {
+                font-size: 0.8em;
+                padding: 5px 6px;
+            }
+            
+            .container {
+                margin: 10px 8px;
+                padding: 12px;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            .productor-item {
+                padding: 10px;
+            }
+            
+            .productor-item img {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .productor-item h4 {
+                font-size: 1em;
+            }
+            
+            .productor-item p {
+                font-size: 0.85em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -129,7 +541,6 @@
         </div>
     </div>
 
-
     <div class="main-content">
         <div class="container">
             <h2>🌱 Nuestros Productores</h2>
@@ -147,12 +558,11 @@
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p>No hay productores registrados 😢</p>
+                    <p style="text-align: center; color: #e0e0e0; font-size: 1.1em;">No hay productores registrados 😢</p>
                 {% endif %}
             </div>
         </div>
     </div>
-
 
     <footer>
         <p>© 2025 AgronoMia - Todos los derechos reservados</p>
@@ -163,17 +573,18 @@
     </button>
 
     <script>
-        // --- FUNCIONES MODAL (AÑADIDAS) ---
+        // --- FUNCIONES MODAL ---
         function abrirLogoutModal() {
             document.getElementById('logout-modal-bg').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
+        
         function cerrarLogoutModal() {
             document.getElementById('logout-modal-bg').classList.remove('active');
             document.body.style.overflow = '';
         }
 
-        // --- CÓDIGO AÑADIDO PARA MANEJO DE HISTORIAL ---
+        // --- CÓDIGO PARA MANEJO DE HISTORIAL ---
         window.addEventListener('popstate', function() {
             location.reload(true);
         });
@@ -182,13 +593,10 @@
             event.preventDefault();
             history.replaceState(null, null, window.location.href);
             window.location.replace("{{ url_for('logout') }}");
-            // Prevenir 'back' es mejor con headers del servidor
         }
 
         // Inicializar el estado del historial
         history.pushState(null, null, window.location.href);
-        // --- FIN CÓDIGO AÑADIDO ---
-
 
         document.addEventListener('DOMContentLoaded', function() {
             // Listener para el enlace de logout (si existe)
@@ -199,6 +607,7 @@
                     abrirLogoutModal();
                 });
             }
+            
             // Listener para cerrar modal con Escape
             document.addEventListener('keydown', function(e) {
                 if (e.key === "Escape") cerrarLogoutModal();
