@@ -44,7 +44,7 @@ app.config.update({
     'SESSION_COOKIE_SAMESITE': 'Lax',
 })
 
-pygame.mixer.init()
+#pygame.mixer.init()
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -2081,7 +2081,7 @@ def mp_webhook():
 #rutas para accesibilidad
 @app.route('/texto_a_voz', methods=['POST'])
 def texto_a_voz():
-    """Convierte texto a voz usando gTTS"""
+    """Endpoint simplificado - solo para compatibilidad"""
     try:
         data = request.get_json()
         texto = data.get('texto', '')
@@ -2089,59 +2089,26 @@ def texto_a_voz():
         if not texto:
             return jsonify({'error': 'No se proporcionó texto'}), 400
         
-        # Crear archivo de audio en memoria usando BytesIO
-        tts = gTTS(text=texto, lang='es', slow=False)
-        audio_buffer = BytesIO()
-        tts.write_to_fp(audio_buffer)
-        audio_buffer.seek(0)
-        
-        # Convertir a base64 para enviar al frontend
-        audio_base64 = base64.b64encode(audio_buffer.read()).decode('utf-8')
-        
+        # En esta versión, el audio se genera en el cliente
         return jsonify({
-            'audio': audio_base64,
-            'status': 'success'
+            'texto': texto,
+            'status': 'success',
+            'message': 'Usar texto-a-voz del navegador'
         })
         
     except Exception as e:
         print(f"Error en texto_a_voz: {e}")
-        return jsonify({'error': 'Error al generar audio'}), 500
+        return jsonify({'error': 'Error al procesar texto'}), 500
+
 @app.route('/reproducir_audio', methods=['POST'])
 def reproducir_audio():
-    """Reproduce audio desde base64"""
-    try:
-        data = request.get_json()
-        audio_base64 = data.get('audio', '')
-        
-        if not audio_base64:
-            return jsonify({'error': 'No se proporcionó audio'}), 400
-        
-        # Decodificar base64 y reproducir
-        audio_data = base64.b64decode(audio_base64)
-        audio_buffer = BytesIO(audio_data)
-        
-        # Detener cualquier audio previo
-        pygame.mixer.music.stop()
-        
-        # Cargar y reproducir nuevo audio
-        pygame.mixer.music.load(audio_buffer)
-        pygame.mixer.music.play()
-        
-        return jsonify({'status': 'reproduciendo'})
-        
-    except Exception as e:
-        print(f"Error en reproducir_audio: {e}")
-        return jsonify({'error': 'Error al reproducir audio'}), 500
+    """Endpoint para compatibilidad - audio en cliente"""
+    return jsonify({'status': 'usar_sintesis_navegador'})
 
 @app.route('/detener_audio', methods=['POST'])
 def detener_audio():
-    """Detiene la reproducción de audio"""
-    try:
-        pygame.mixer.music.stop()
-        return jsonify({'status': 'detenido'})
-    except Exception as e:
-        print(f"Error al detener audio: {e}")
-        return jsonify({'error': 'Error al detener audio'}), 500
+    """Endpoint para compatibilidad"""
+    return jsonify({'status': 'detenido'})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))

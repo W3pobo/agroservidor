@@ -1,16 +1,17 @@
-// static/js/accesibilidad.js - Sistema completo de accesibilidad con botones redondos
+// static/js/accesibilidad.js - Sistema completo de accesibilidad con botones redondos y TTS en cliente
 class LectorPantalla {
     constructor() {
         this.estaReproduciendo = false;
         this.botonesVisibles = false;
+        this.sistemaAudio = new SistemaAudio(); // Nuevo sistema de audio en cliente
         this.inicializar();
     }
 
     inicializar() {
         console.log('🔄 Inicializando sistema de accesibilidad...');
         this.configurarEventos();
-        this.aplicarEstilosCursor(); // <-- RE-AÑADIDO
-        this.aplicarEstilosVisuales(); // Carga estilos para modos visuales
+        this.aplicarEstilosCursor();
+        this.aplicarEstilosVisuales();
         this.agregarBotonesAccesibilidad();
         this.mejorarAccesibilidadElementos();
 
@@ -66,7 +67,7 @@ class LectorPantalla {
                 this.detenerAudio();
             }
             
-            // Atajo de cursor (Ctrl+Alt+C) (RE-AÑADIDO)
+            // Atajo de cursor (Ctrl+Alt+C)
             if (e.ctrlKey && e.altKey && e.key === 'c') {
                 e.preventDefault();
                 this.ciclarTamanioCursor();
@@ -254,7 +255,7 @@ class LectorPantalla {
         document.getElementById('btn-leer-seleccion').addEventListener('click', () => { this.leerTextoSeleccionado(); this.ocultarBotones(); });
         document.getElementById('btn-leer-pagina').addEventListener('click', () => { this.leerResumenPagina(); this.ocultarBotones(); });
         document.getElementById('btn-detener-audio').addEventListener('click', () => { this.detenerAudio(); this.ocultarBotones(); });
-        document.getElementById('btn-cursor-grande').addEventListener('click', () => { this.ciclarTamanioCursor(); this.ocultarBotones(); }); // <-- RE-AÑADIDO
+        document.getElementById('btn-cursor-grande').addEventListener('click', () => { this.ciclarTamanioCursor(); this.ocultarBotones(); });
         document.getElementById('btn-tema').addEventListener('click', () => { this.toggleMenuTema(); this.ocultarBotones(); });
         document.getElementById('btn-contraste').addEventListener('click', () => { this.toggleMenuContraste(); this.ocultarBotones(); });
         document.getElementById('btn-escala-grises').addEventListener('click', () => { this.toggleEscalaGrises(); this.ocultarBotones(); });
@@ -301,13 +302,16 @@ class LectorPantalla {
                 this.ocultarMenuTipografia();
             });
         });
+
+        // Inicializar accesibilidad de audio
+        this.inicializarAccesibilidadAudio();
     }
 
     aplicarEstilosBotones() {
         const estilos = `
             #accesibilidad-toggle {
                 position: fixed;
-                top: 80px; /* <-- MODIFICADO (antes 180px) */
+                top: 80px;
                 right: 25px;
                 z-index: 1001;
                 background-color: #4CAF50;
@@ -336,7 +340,7 @@ class LectorPantalla {
 
             #contenedor-accesibilidad {
                 position: fixed;
-                top: 150px; /* <-- MODIFICADO (antes 250px) */
+                top: 150px;
                 right: 25px;
                 z-index: 1000;
                 display: flex;
@@ -402,7 +406,7 @@ class LectorPantalla {
             #btn-info-accesibilidad { background-color: #607D8B; }
             #btn-info-accesibilidad:hover { background-color: #455A64; }
 
-            /* Botón de Cursor (RE-AÑADIDO) */
+            /* Botón de Cursor */
             #btn-cursor-grande { background-color: #673AB7; } /* Deep Purple */
             #btn-cursor-grande:hover { background-color: #512DA8; }
 
@@ -426,11 +430,10 @@ class LectorPantalla {
             #btn-tipografia { background-color: #9C27B0; } /* Purple */
             #btn-tipografia:hover { background-color: #7B1FA2; }
 
-
             /* --- Estilos para Menús Flotantes (Tema, Contraste, Tamaño, Tipografía) --- */
             #menu-tema, #menu-contraste, #menu-tamanio, #menu-tipografia {
                 position: fixed;
-                top: 150px; /* <-- MODIFICADO (antes 250px) */
+                top: 150px;
                 right: 85px; 
                 width: 180px;
                 background-color: #ffffff;
@@ -523,7 +526,6 @@ class LectorPantalla {
         document.head.appendChild(style);
     }
 
-    // --- (RE-AÑADIDO) ---
     aplicarEstilosCursor() {
         const estilos = `
             .cursor-grande * {
@@ -558,7 +560,6 @@ class LectorPantalla {
                 font-family: 'Courier New', Courier, monospace !important; 
             }
             
-        
             /* Modo Claro (Invertido) */
             html.modo-oscuro {
                 filter: invert(1) hue-rotate(180deg);
@@ -654,7 +655,6 @@ class LectorPantalla {
         this.botonesVisibles = false;
     }
 
-    // --- (RE-AÑADIDO) ---
     ciclarTamanioCursor() {
         const body = document.body;
         
@@ -849,13 +849,29 @@ class LectorPantalla {
         }
         localStorage.setItem('tipografia', fontName); 
     }
+
+    // === NUEVO: SISTEMA DE AUDIO EN CLIENTE ===
     
-    // --- Métodos de Lector de Pantalla (Sin cambios) ---
+    inicializarAccesibilidadAudio() {
+        console.log('🎵 Inicializando sistema de audio en cliente...');
+        
+        // Leer automáticamente mensajes flash
+        const mensajesFlash = document.querySelector('.flash-messages');
+        if (mensajesFlash) {
+            const textoMensaje = mensajesFlash.innerText;
+            if (textoMensaje && textoMensaje.trim() !== '') {
+                setTimeout(() => {
+                    this.sistemaAudio.reproducir(textoMensaje);
+                }, 1000);
+            }
+        }
+    }
+
     async leerTextoSeleccionado() {
         const texto = window.getSelection().toString().trim();
         if (texto) {
-            this.mostrarMensaje('Convirtiendo texto a voz...', 'info');
-            await this.convertirYReproducir(texto);
+            this.mostrarMensaje('Leyendo texto seleccionado...', 'info');
+            this.sistemaAudio.reproducir(texto);
         } else {
             this.mostrarMensaje('Selecciona algún texto con el mouse para leerlo', 'info');
         }
@@ -868,80 +884,15 @@ class LectorPantalla {
         const texto = textoPrincipal.innerText.replace(/\s+/g, ' ').trim().substring(0, 200) + '...';
         const resumen = `Página: ${titulo}. ${encabezados ? 'Contenido principal: ' + encabezados + '. ' : ''}Resumen: ${texto}`;
         this.mostrarMensaje('Leyendo resumen de la página...', 'info');
-        await this.convertirYReproducir(resumen);
+        this.sistemaAudio.reproducir(resumen);
     }
 
-    async convertirYReproducir(texto) {
-        try {
-            this.mostrarCargando();
-            const respuesta = await fetch('/texto_a_voz', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ texto: texto.substring(0, 500) })
-            });
-            if (!respuesta.ok) throw new Error('Error en el servidor');
-            const datos = await respuesta.json();
-            if (datos.audio && datos.status === 'success') {
-                await fetch('/reproducir_audio', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ audio: datos.audio })
-                });
-                this.estaReproduciendo = true;
-                this.mostrarIndicadorReproduccion();
-                this.mostrarMensaje('Reproduciendo audio...', 'success');
-            } else {
-                throw new Error(datos.error || 'Error desconocido');
-            }
-        } catch (error) {
-            console.error('Error al convertir o reproducir audio:', error);
-            this.mostrarMensaje('Error: ' + error.message, 'error');
-        } finally {
-            this.ocultarCargando();
-        }
+    detenerAudio() {
+        this.sistemaAudio.detener();
+        this.mostrarMensaje('Audio detenido', 'info');
     }
 
-    async detenerAudio() {
-        try {
-            await fetch('/detener_audio', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-            this.estaReproduciendo = false;
-            this.ocultarIndicadorReproduccion();
-            this.mostrarMensaje('Audio detenido', 'info');
-        } catch (error) {
-            console.error('Error al detener audio:', error);
-            this.mostrarMensaje('Error al detener audio', 'error');
-        }
-    }
-
-    // --- Métodos de UI (Sin cambios) ---
-    mostrarCargando() {
-        let cargando = document.getElementById('cargando-audio');
-        if (!cargando) {
-            cargando = document.createElement('div');
-            cargando.id = 'cargando-audio';
-            cargando.innerHTML = '⏳ Generando audio...';
-            cargando.style.cssText = `position: fixed; top: 20px; right: 20px; background: #2196F3; color: white; padding: 10px 15px; border-radius: 5px; z-index: 10001;`;
-            document.body.appendChild(cargando);
-        }
-    }
-    ocultarCargando() {
-        const cargando = document.getElementById('cargando-audio');
-        if (cargando) cargando.remove();
-    }
-    mostrarIndicadorReproduccion() {
-        let indicador = document.getElementById('indicador-reproduccion');
-        if (!indicador) {
-            indicador = document.createElement('div');
-            indicador.id = 'indicador-reproduccion';
-            indicador.innerHTML = '🔊 Reproduciendo...';
-            indicador.style.cssText = `position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 12px 18px; border-radius: 8px; z-index: 10001; font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2);`;
-            document.body.appendChild(indicador);
-        }
-    }
-    ocultarIndicadorReproduccion() {
-        const indicador = document.getElementById('indicador-reproduccion');
-        if (indicador) indicador.remove();
-    }
+    // --- Métodos de UI ---
     mostrarMensaje(mensaje, tipo = 'info') {
         const mensajeAnterior = document.getElementById('mensaje-accesibilidad');
         if (mensajeAnterior) mensajeAnterior.remove();
@@ -965,13 +916,13 @@ class LectorPantalla {
         }, 4000);
     }
 
-    // --- (RE-AÑADIDO) ---
     mostrarInfoAccesibilidad() {
         const info = `
-🎵 LECTOR DE PANTALLA:
+🎵 LECTOR DE PANTALLA (EN CLIENTE):
 • Selecciona texto y haz clic en el botón 🔊 para leer
 • Usa Ctrl+Alt+L para leer texto seleccionado
 • Usa Ctrl+Alt+S para detener el audio
+• Funciona completamente en tu navegador
 
 🖱️ TAMAÑO DEL CURSOR:
 • Haz clic en el botón (●) para cambiar el tamaño
@@ -997,6 +948,125 @@ VISUAL:
     }
 }
 
+// ===== SISTEMA DE AUDIO EN CLIENTE =====
+class SistemaAudio {
+    constructor() {
+        this.synth = window.speechSynthesis;
+        this.utterance = null;
+        this.estaReproduciendo = false;
+    }
+
+    // Verificar si el navegador soporta síntesis de voz
+    soportado() {
+        return 'speechSynthesis' in window;
+    }
+
+    // Reproducir texto
+    reproducir(texto) {
+        if (!this.soportado()) {
+            console.warn('Text-to-speech no soportado en este navegador');
+            this.fallbackTTS(texto);
+            return;
+        }
+
+        // Detener reproducción actual
+        this.detener();
+
+        // Crear nuevo utterance
+        this.utterance = new SpeechSynthesisUtterance(texto);
+        
+        // Configurar propiedades
+        this.utterance.lang = 'es-ES';
+        this.utterance.rate = 1.0;
+        this.utterance.pitch = 1.0;
+        this.utterance.volume = 1.0;
+
+        // Eventos
+        this.utterance.onstart = () => {
+            this.estaReproduciendo = true;
+            this.mostrarEstado('Reproduciendo...');
+        };
+
+        this.utterance.onend = () => {
+            this.estaReproduciendo = false;
+            this.mostrarEstado('Listo');
+        };
+
+        this.utterance.onerror = (event) => {
+            console.error('Error en síntesis de voz:', event);
+            this.estaReproduciendo = false;
+            this.mostrarEstado('Error');
+            this.fallbackTTS(texto);
+        };
+
+        // Reproducir
+        this.synth.speak(this.utterance);
+    }
+
+    // Fallback para navegadores sin soporte completo
+    fallbackTTS(texto) {
+        // Intentar con la Web Speech API básica
+        try {
+            const utterance = new SpeechSynthesisUtterance(texto);
+            utterance.lang = 'es-ES';
+            window.speechSynthesis.speak(utterance);
+        } catch (error) {
+            console.error('Fallback TTS también falló:', error);
+            this.mostrarMensaje('Funcionalidad de audio no disponible en este navegador');
+        }
+    }
+
+    // Detener reproducción
+    detener() {
+        if (this.synth.speaking) {
+            this.synth.cancel();
+            this.estaReproduciendo = false;
+            this.mostrarEstado('Detenido');
+        }
+    }
+
+    // Pausar reproducción
+    pausar() {
+        if (this.synth.speaking && !this.synth.paused) {
+            this.synth.pause();
+            this.mostrarEstado('Pausado');
+        }
+    }
+
+    // Reanudar reproducción
+    reanudar() {
+        if (this.synth.speaking && this.synth.paused) {
+            this.synth.resume();
+            this.mostrarEstado('Reproduciendo...');
+        }
+    }
+
+    // Mostrar estado visual
+    mostrarEstado(mensaje) {
+        console.log('Estado audio:', mensaje);
+        
+        // Mostrar notificación visual
+        const notificacion = document.getElementById('audio-status');
+        if (notificacion) {
+            notificacion.textContent = mensaje;
+            notificacion.style.display = 'block';
+            setTimeout(() => {
+                notificacion.style.display = 'none';
+            }, 3000);
+        }
+    }
+
+    mostrarMensaje(mensaje) {
+        // Usar el sistema de mensajes existente en lugar de alert
+        if (window.lectorPantalla) {
+            window.lectorPantalla.mostrarMensaje(mensaje, 'info');
+        } else {
+            alert(mensaje);
+        }
+    }
+}
+
 // Inicialización automática
-console.log('🚀 Cargando sistema de accesibilidad...');
+console.log('🚀 Cargando sistema de accesibilidad con TTS en cliente...');
 window.lectorPantalla = new LectorPantalla();
+window.sistemaAudio = new SistemaAudio(); // También disponible globalmente
