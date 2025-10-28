@@ -31,14 +31,14 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, curren
 app = Flask(__name__)
 
 # 2. Configuración de la aplicación
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:WEPOBO.15@localhost/agronomia'
-app.config['SECRET_KEY'] = 'clave_secreta_super_segura'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
+app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get('GOOGLE_CLIENT_SECRET')
 app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 app.config.update({
-    'SECRET_KEY': 'clave_secreta_super_segura',
     'SESSION_COOKIE_HTTPONLY': True,
     'SESSION_COOKIE_SECURE': False,  # True en producción con HTTPS
     'SESSION_COOKIE_SAMESITE': 'Lax',
@@ -49,12 +49,12 @@ pygame.mixer.init()
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'seedhubagronomia@gmail.com')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'ilji gdqc pbwr rtoj')
-app.config['MAIL_DEFAULT_SENDER'] = 'seedhubagronomia@gmail.com'
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
 
-app.config['MERCADOPAGO_PUBLIC_KEY'] = 'APP_USR-ee1f1a3e-0632-4fd2-8bdc-111af511675a'
-app.config['MERCADOPAGO_ACCESS_TOKEN'] = 'APP_USR-6855963865764820-092411-4a1711317cefc12a97784dff116eb1ac-1863548562'
+app.config['MERCADOPAGO_PUBLIC_KEY'] = os.environ.get('MERCADOPAGO_PUBLIC_KEY')
+app.config['MERCADOPAGO_ACCESS_TOKEN'] = os.environ.get('MERCADOPAGO_ACCESS_TOKEN')
 
 print("Google Client ID:", app.config['GOOGLE_CLIENT_ID'])
 print("Google Client Secret:", app.config['GOOGLE_CLIENT_SECRET'])
