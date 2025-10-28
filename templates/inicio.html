@@ -263,6 +263,92 @@
             transition: filter 0.3s ease;
         }
 
+        /* ======================================= */
+        /* === MEDIA QUERIES ESPECÍFICAS PARA INICIO.HTML === */
+        /* ======================================= */
+        
+        /* Para pantallas de 768px o menos (tablets y móviles) */
+        @media (max-width: 768px) {
+            /* Ajustes para el logo banner */
+            .logo-banner-glass {
+                padding: 20px;
+                margin: 20px auto;
+            }
+            
+            .logo-banner-content h1 {
+                font-size: 1.8em;
+            }
+            
+            .logo-banner-content p {
+                font-size: 1em;
+            }
+            
+            .logo-img-main {
+                max-width: 150px;
+            }
+            
+            /* Ajustes para el grid de presentación */
+            .presentacion-grid-new {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 15px;
+            }
+            
+            .info-card {
+                padding: 20px;
+            }
+            
+            .icono-card {
+                font-size: 2.5em;
+            }
+            
+            .info-card h3 {
+                font-size: 1.2em;
+            }
+            
+            .info-card p {
+                font-size: 0.9em;
+            }
+            
+            /* Ajustes para alertas */
+            .alert {
+                margin: 15px auto;
+                padding: 12px;
+                font-size: 0.9em;
+            }
+            
+            /* Ajustes para el botón flotante */
+            #back-to-top {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                left: 20px;
+            }
+            
+            #back-to-top svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+        
+        /* Para pantallas muy pequeñas (móviles pequeños) */
+        @media (max-width: 480px) {
+            .logo-banner-content h1 {
+                font-size: 1.5em;
+            }
+            
+            .logo-banner-content p {
+                font-size: 0.9em;
+            }
+            
+            .logo-img-main {
+                max-width: 120px;
+            }
+            
+            .info-card {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
